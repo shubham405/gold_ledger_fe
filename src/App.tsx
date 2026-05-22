@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { ScrollManager } from './components/ScrollManager';
 import { AuthLayout } from './components/AuthLayout';
 import { Layout } from './components/Layout';
 import { GuestRoute } from './components/GuestRoute';
@@ -18,6 +19,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollManager />
         <Routes>
           <Route
             element={
@@ -39,10 +41,10 @@ export default function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="borrowers" element={<Borrowers />} />
-            <Route path="borrowers/:id" element={<BorrowerDetail />} />
-            <Route path="loans" element={<Loans />} />
-            <Route path="loans/:id" element={<LoanDetail />} />
+            <Route path="/borrowers" element={<Borrowers />} />
+            <Route path="/borrowers/:id" element={<BorrowerDetail />} />
+            <Route path="/loans" element={<Loans />} />
+            <Route path="/loans/:id" element={<LoanDetail />} />
           </Route>
 
           <Route path="*" element={<RootRedirect />} />

@@ -48,6 +48,15 @@ API base URL is defined once in `src/config/env.ts`.
 | `npm run preview` | Preview production build |
 | `npm run lint` | ESLint |
 
+## Deploy on Vercel
+
+1. Import the repo in [Vercel](https://vercel.com).
+2. **Root Directory:** `jewelry-loan-ui` (if the repo is the monorepo root, you can also deploy from the root — `vercel.json` at the repo root handles that).
+3. **Environment variable:** `VITE_API_URL` = your production API (e.g. `https://your-api.onrender.com/api/v1`).
+4. Deploy. **`vercel.json` must be committed and pushed** — Vercel only reads it from Git. Without it, reload on `/borrowers` or `/loans` returns a platform 404.
+
+`vercel.json` rewrites all app routes to `index.html`. The build also copies `index.html` → `404.html` as a fallback. `public/_redirects` covers Netlify/Render static.
+
 ## Docker
 
 **UI image** (nginx serves the Vite build):
