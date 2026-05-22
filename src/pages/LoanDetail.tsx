@@ -389,6 +389,7 @@ export function LoanDetail() {
 
   const isActive = loan.status === 'ACTIVE' || loan.status === 'OVERDUE';
   const isClosed = loan.status === 'CLOSED';
+  const principalCleared = loan.outstandingPrincipal <= 0;
   const principalPaid =
     interest?.totalPrincipalPaid ??
     Math.max(0, loan.principalAmount - loan.outstandingPrincipal);
@@ -426,9 +427,11 @@ export function LoanDetail() {
                 <button type="button" className="btn btn--primary" onClick={openPaymentModal}>
                   Record payment
                 </button>
-                <button type="button" className="btn btn--danger" onClick={closeLoan}>
-                  Close pledge
-                </button>
+                {!principalCleared && (
+                  <button type="button" className="btn btn--danger" onClick={closeLoan}>
+                    Close pledge
+                  </button>
+                )}
               </>
             )}
           </div>
@@ -450,7 +453,15 @@ export function LoanDetail() {
             <dt>Principal</dt>
             <dd>{formatCurrency(loan.principalAmount)}</dd>
             <dt>Outstanding</dt>
-            <dd className="text-accent">{formatCurrency(loan.outstandingPrincipal)}</dd>
+            <dd className="text-accent">
+              {formatCurrency(loan.outstandingPrincipal)}
+              {principalCleared && !isClosed && (
+                <span className="detail-note detail-note--inline">
+                  {' '}
+                  — principal cleared; record final payment or refresh to update status
+                </span>
+              )}
+            </dd>
             <dt>Monthly rate</dt>
             <dd>{loan.monthlyInterestRatePercent}%</dd>
             <dt>Start</dt>
@@ -833,6 +844,9 @@ export function LoanDetail() {
           const hasAmount = total > 0;
           return (
             <form className="form" onSubmit={recordPayment}>
+              <p className="form-hint">
+                When outstanding principal reaches zero, this pledge closes automatically.
+              </p>
               <fieldset disabled={saving} className="form-fieldset">
                 <label>
                   Payment date
