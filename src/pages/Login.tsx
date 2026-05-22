@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { getApiErrorMessage } from '../lib/apiError';
+import {
+  EMAIL_INVALID_MESSAGE,
+  EMAIL_MAX_LENGTH,
+  EMAIL_PATTERN_SOURCE,
+  normalizeEmail,
+  validateEmail,
+} from '../lib/emailValidation';
 import { useAuth } from '../context/AuthContext';
 import { isPublicPath } from '../lib/authStorage';
 
@@ -20,10 +27,15 @@ export function Login() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
     setSaving(true);
     setError('');
     try {
-      await login({ email, password });
+      await login({ email: normalizeEmail(email), password });
       navigate(from, { replace: true });
     } catch (err) {
       setError(getApiErrorMessage(err, 'Sign in failed'));
@@ -49,6 +61,9 @@ export function Login() {
             type="email"
             autoComplete="email"
             required
+            maxLength={EMAIL_MAX_LENGTH}
+            pattern={EMAIL_PATTERN_SOURCE}
+            title={EMAIL_INVALID_MESSAGE}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />

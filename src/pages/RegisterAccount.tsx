@@ -3,6 +3,13 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { useAuth } from '../context/AuthContext';
 import {
+  EMAIL_INVALID_MESSAGE,
+  EMAIL_MAX_LENGTH,
+  EMAIL_PATTERN_SOURCE,
+  normalizeEmail,
+  validateEmail,
+} from '../lib/emailValidation';
+import {
   clearRegisterDraft,
   getRegisterDraft,
   mergeRegisterDraft,
@@ -40,6 +47,11 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -48,7 +60,7 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
     setError('');
     try {
       await register({
-        email,
+        email: normalizeEmail(email),
         password,
         shopName: draft.shopName,
         ownerName: draft.ownerName,
@@ -83,6 +95,9 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
             type="email"
             autoComplete="email"
             required
+            maxLength={EMAIL_MAX_LENGTH}
+            pattern={EMAIL_PATTERN_SOURCE}
+            title={EMAIL_INVALID_MESSAGE}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
