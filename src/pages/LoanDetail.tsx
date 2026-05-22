@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { collateralApi } from '../api/collateral';
 import { loansApi } from '../api/loans';
@@ -61,6 +61,7 @@ const emptyCollateral: CollateralRequest = {
 
 export function LoanDetail() {
   const { canWrite } = useAuth();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const loanId = Number(id);
 
