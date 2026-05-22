@@ -4,6 +4,7 @@ import { loansApi } from '../api/loans';
 import { borrowersApi } from '../api/borrowers';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { getApiErrorMessage } from '../lib/apiError';
+import { rowSerialNumber } from '../lib/rowSerial';
 import { Loading } from '../components/Loading';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
@@ -77,10 +78,10 @@ export function Dashboard() {
         <section className="card card--warn">
           <h2>Attention — overdue pledges</h2>
           <ul className="simple-list">
-            {overdue.map((loan) => (
+            {overdue.map((loan, index) => (
               <li key={loan.id}>
                 <Link to={`/loans/${loan.id}`}>
-                  #{loan.id} — {loan.borrower?.name} · Due {formatDate(loan.dueDate)}
+                  {rowSerialNumber(index)}. {loan.borrower?.name} · Due {formatDate(loan.dueDate)}
                 </Link>
               </li>
             ))}
@@ -112,7 +113,7 @@ export function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recent.map((loan) => (
+                {recent.map((loan, index) => (
                   <tr
                     key={loan.id}
                     className="table-row--clickable"
@@ -126,7 +127,7 @@ export function Dashboard() {
                       }
                     }}
                   >
-                    <td className="link--strong">{loan.id}</td>
+                    <td className="cell-serial">{rowSerialNumber(index)}</td>
                     <td>{loan.borrower?.name ?? '—'}</td>
                     <td>{formatCurrency(loan.principalAmount)}</td>
                     <td>{formatCurrency(loan.outstandingPrincipal)}</td>

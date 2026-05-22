@@ -1,10 +1,11 @@
 import { env } from '../config/env';
+import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 import type { AuthResponse, LoginRequest, RegisterRequest } from '../types/auth';
 
 const AUTH_BASE = env.apiBaseUrl;
 
 async function authFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${AUTH_BASE}${path}`, {
+  const res = await fetchWithTimeout(`${AUTH_BASE}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

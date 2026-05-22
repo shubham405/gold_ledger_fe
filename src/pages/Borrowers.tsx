@@ -9,6 +9,7 @@ import { Modal } from '../components/Modal';
 import { PageHeader } from '../components/PageHeader';
 import { Pagination } from '../components/Pagination';
 import { getApiErrorMessage } from '../lib/apiError';
+import { rowSerialNumber } from '../lib/rowSerial';
 import {
   AADHAAR_DIGITS,
   formatAadhaarInput,
@@ -225,6 +226,7 @@ export function Borrowers() {
           <table>
             <thead>
               <tr>
+                <th>#</th>
                 <th>Name</th>
                 <th>Father’s name</th>
                 <th>Mobile</th>
@@ -234,8 +236,11 @@ export function Borrowers() {
               </tr>
             </thead>
             <tbody>
-              {borrowers.map((b) => (
+              {borrowers.map((b, index) => (
                 <tr key={b.id}>
+                  <td className="cell-serial">
+                    {rowSerialNumber(index, { page, pageSize: PAGE_SIZE })}
+                  </td>
                   <td>
                     <Link to={`/borrowers/${b.id}`} className="link link--strong">
                       {b.name}

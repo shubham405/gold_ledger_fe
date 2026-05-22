@@ -1,5 +1,6 @@
 import { clearAuth, getToken } from '../lib/authStorage';
 import { env } from '../config/env';
+import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 import type { ApiError } from '../types';
 
 const API_BASE = env.apiBaseUrl;
@@ -48,7 +49,7 @@ export async function api<T>(
     (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const res = await fetchWithTimeout(`${API_BASE}${path}`, { ...options, headers });
 
   if (res.status === 401) {
     clearAuth();

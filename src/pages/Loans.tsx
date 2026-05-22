@@ -21,6 +21,7 @@ import type {
   LoanStatus,
 } from '../types';
 import { getApiErrorMessage } from '../lib/apiError';
+import { rowSerialNumber } from '../lib/rowSerial';
 import { validatePledgeAmounts } from '../lib/amountValidation';
 import { formatCurrency, formatDate, todayISO } from '../utils/format';
 
@@ -225,13 +226,13 @@ export function Loans() {
               </tr>
             </thead>
             <tbody>
-              {loans.map((loan) => (
+              {loans.map((loan, index) => (
                 <tr
                   key={loan.id}
                   className="table-row--clickable"
                   tabIndex={0}
                   role="link"
-                  aria-label={`View pledge ${loan.id}${loan.borrower?.name ? ` for ${loan.borrower.name}` : ''}`}
+                  aria-label={`View pledge ${rowSerialNumber(index)}${loan.borrower?.name ? ` for ${loan.borrower.name}` : ''}`}
                   onClick={() => navigate(`/loans/${loan.id}`)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -240,7 +241,7 @@ export function Loans() {
                     }
                   }}
                 >
-                  <td className="link--strong">{loan.id}</td>
+                  <td className="cell-serial">{rowSerialNumber(index)}</td>
                   <td>{loan.borrower?.name ?? '—'}</td>
                   <td>{formatCurrency(loan.principalAmount)}</td>
                   <td>{formatCurrency(loan.outstandingPrincipal)}</td>

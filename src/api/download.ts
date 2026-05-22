@@ -1,5 +1,6 @@
 import { env } from '../config/env';
 import { clearAuth, getToken } from '../lib/authStorage';
+import { fetchWithTimeout } from '../lib/fetchWithTimeout';
 import { ApiClientError } from './client';
 
 const API_BASE = env.apiBaseUrl;
@@ -24,7 +25,7 @@ export async function downloadFile(path: string, filename: string): Promise<void
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, { headers });
+  const res = await fetchWithTimeout(`${API_BASE}${path}`, { headers }, env.downloadTimeoutMs);
 
   if (res.status === 401) {
     clearAuth();

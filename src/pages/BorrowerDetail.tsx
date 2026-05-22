@@ -11,6 +11,7 @@ import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import type { Borrower, Loan } from '../types';
 import { getApiErrorMessage } from '../lib/apiError';
+import { rowSerialNumber } from '../lib/rowSerial';
 import { validatePledgeAmounts } from '../lib/amountValidation';
 import { formatCurrency, formatDate, todayISO } from '../utils/format';
 
@@ -142,7 +143,7 @@ export function BorrowerDetail() {
                 </tr>
               </thead>
               <tbody>
-                {loans.map((loan) => (
+                {loans.map((loan, index) => (
                   <tr
                     key={loan.id}
                     className="table-row--clickable"
@@ -156,7 +157,7 @@ export function BorrowerDetail() {
                       }
                     }}
                   >
-                    <td className="link--strong">{loan.id}</td>
+                    <td className="cell-serial">{rowSerialNumber(index)}</td>
                     <td>{formatCurrency(loan.principalAmount)}</td>
                     <td>{formatCurrency(loan.outstandingPrincipal)}</td>
                     <td>{loan.monthlyInterestRatePercent}%</td>

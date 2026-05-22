@@ -1073,6 +1073,13 @@ th {
   letter-spacing: 0.03em;
 }
 
+.cell-serial {
+  width: 2.75rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 tr:hover td {
   background: rgba(255, 255, 255, 0.02);
 }

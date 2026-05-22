@@ -117,12 +117,11 @@ export function LoanDetail() {
   const load = useCallback(() => {
     if (!loanId) return;
     setLoading(true);
-    Promise.all([
-      loansApi.get(loanId),
-      collateralApi.list(loanId),
-      loansApi.interest(loanId),
-    ])
-      .then(([l, c, i]) => {
+    loansApi
+      .get(loanId)
+      .then(async (l) => {
+        const c = await collateralApi.list(loanId);
+        const i = l.status === 'CLOSED' ? null : await loansApi.interest(loanId);
         setLoan(l);
         setCollateral(c);
         setInterest(i);
@@ -144,6 +143,7 @@ export function LoanDetail() {
   }, [loadPayments]);
 
   async function refreshInterest(asOf?: string) {
+    if (loan?.status === 'CLOSED') return;
     try {
       const i = await loansApi.interest(loanId, asOf);
       setInterest(i);
@@ -250,7 +250,7 @@ export function LoanDetail() {
 
   async function saveEditPayment(e: React.FormEvent) {
     e.preventDefault();
-    if (saving || !editingPayment) return;
+    if (saving || !editingPayment || loan?.status === 'CLOSED') return;
     if (isAfterToday(editPaymentForm.paymentDate)) {
       setError('Payment date cannot be in the future');
       return;
@@ -281,6 +281,7 @@ export function LoanDetail() {
   }
 
   async function handleConfirmPayment(p: Payment) {
+    if (loan?.status === 'CLOSED') return;
     if (!confirm(`Confirm this payment of ${formatCurrency(p.totalPaid)}? It cannot be edited after confirmation.`)) return;
     setError('');
     try {
@@ -294,7 +295,7 @@ export function LoanDetail() {
 
   async function recordPayment(e: React.FormEvent) {
     e.preventDefault();
-    if (saving) return;
+    if (saving || loan?.status === 'CLOSED') return;
     if (isAfterToday(paymentForm.paymentDate)) {
       setError('Payment date cannot be in the future');
       return;
@@ -387,11 +388,15 @@ export function LoanDetail() {
   if (!loan) return <ErrorAlert message={error || 'Pledge not found'} placement="inline" />;
 
   const isActive = loan.status === 'ACTIVE' || loan.status === 'OVERDUE';
+  const isClosed = loan.status === 'CLOSED';
+  const principalPaid =
+    interest?.totalPrincipalPaid ??
+    Math.max(0, loan.principalAmount - loan.outstandingPrincipal);
 
   return (
     <div className="page">
       <PageHeader
-        title={`Pledge #${loan.id}`}
+        title={loan.borrower?.name ? `Pledge — ${loan.borrower.name}` : 'Pledge'}
         subtitle={`${loan.borrower?.name} · ${loan.borrower?.mobileNumber}`}
         backTo="/loans"
         backLabel="Pledges"
@@ -466,7 +471,9 @@ export function LoanDetail() {
 
         <section className="card card--accent">
           <h2>Interest &amp; dues</h2>
-          {interest ? (
+          {isClosed ? (
+            <p className="detail-note">This pledge is closed. Interest and payable amounts are no longer shown.</p>
+          ) : interest ? (
             <>
               <dl className="detail-list">
                 <dt>As of</dt>
@@ -496,31 +503,31 @@ export function LoanDetail() {
                   principal was reduced {(interest.principalSegmentCount ?? 1) - 1}× during this loan.
                 </p>
               )}
+              <div className="inline-form mt">
+                <DateInput
+                  className="input input--sm"
+                  value={interestAsOf}
+                  onChange={setInterestAsOf}
+                />
+                <button
+                  type="button"
+                  className="btn btn--ghost btn--sm"
+                  onClick={() => refreshInterest(interestAsOf)}
+                >
+                  Recalculate
+                </button>
+              </div>
             </>
           ) : (
             <p>—</p>
           )}
-          <div className="inline-form mt">
-            <DateInput
-              className="input input--sm"
-              value={interestAsOf}
-              onChange={setInterestAsOf}
-            />
-            <button
-              type="button"
-              className="btn btn--ghost btn--sm"
-              onClick={() => refreshInterest(interestAsOf)}
-            >
-              Recalculate
-            </button>
-          </div>
         </section>
 
         <section className="card">
           <h2>Quick totals</h2>
           <dl className="detail-list">
             <dt>Principal paid</dt>
-            <dd>{formatCurrency(interest?.totalPrincipalPaid)}</dd>
+            <dd>{formatCurrency(principalPaid)}</dd>
             <dt>Payments recorded</dt>
             <dd>{paymentsPage?.totalElements ?? 0}</dd>
             <dt>Pledged items</dt>
@@ -529,7 +536,7 @@ export function LoanDetail() {
         </section>
       </div>
 
-      {interest && (
+      {interest && !isClosed && (
         <section className="card card--wide">
           <div className="card-header">
             <h2>Interest calculation breakdown</h2>
@@ -647,7 +654,7 @@ export function LoanDetail() {
                   <th>Outstanding after</th>
                   <th>Notes</th>
                   <th>Status</th>
-                  {canWrite && <th>Actions</th>}
+                  {isActive && canWrite && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -672,7 +679,7 @@ export function LoanDetail() {
                         </span>
                       )}
                     </td>
-                    {canWrite && (
+                    {isActive && canWrite && (
                       <td className="cell-actions">
                         {confirmed ? (
                           <span className="text-muted">—</span>
