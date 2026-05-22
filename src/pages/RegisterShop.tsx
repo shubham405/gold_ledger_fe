@@ -1,16 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { saveRegisterDraft } from '../lib/registerDraft';
+import { getRegisterDraft, mergeRegisterDraft } from '../lib/registerDraft';
 
 export function RegisterShop() {
   const navigate = useNavigate();
-  const [shopName, setShopName] = useState('');
-  const [ownerName, setOwnerName] = useState('');
-  const [phone, setPhone] = useState('');
+  const existing = getRegisterDraft();
+
+  const [shopName, setShopName] = useState(existing?.shopName ?? '');
+  const [ownerName, setOwnerName] = useState(existing?.ownerName ?? '');
+  const [phone, setPhone] = useState(existing?.phone ?? '');
+
+  useEffect(() => {
+    mergeRegisterDraft({
+      shopName: shopName.trim(),
+      ownerName: ownerName.trim(),
+      phone: phone.trim() || undefined,
+    });
+  }, [shopName, ownerName, phone]);
 
   function handleContinue(e: React.FormEvent) {
     e.preventDefault();
-    saveRegisterDraft({
+    mergeRegisterDraft({
       shopName: shopName.trim(),
       ownerName: ownerName.trim(),
       phone: phone.trim() || undefined,

@@ -2032,6 +2032,11 @@ label {
   color: var(--text-muted);
 }
 
+/* Keep multi-step form fields mounted so Back preserves entered data */
+.form-step-panel--hidden {
+  display: none;
+}
+
 .pagination {
   display: flex;
   flex-wrap: wrap;

@@ -385,7 +385,15 @@ export function LoanDetail() {
   }
 
   if (loading) return <Loading message="Loading pledge details…" />;
-  if (!loan) return <ErrorAlert message={error || 'Pledge not found'} placement="inline" />;
+  if (!loan) {
+    return (
+      <ErrorAlert
+        message={error || 'Pledge not found'}
+        placement="inline"
+        onDismiss={() => navigate('/loans')}
+      />
+    );
+  }
 
   const isActive = loan.status === 'ACTIVE' || loan.status === 'OVERDUE';
   const isClosed = loan.status === 'CLOSED';

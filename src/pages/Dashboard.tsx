@@ -29,7 +29,15 @@ export function Dashboard() {
   }, []);
 
   if (loading) return <Loading message="Loading shop overview…" />;
-  if (error) return <ErrorAlert message={error} placement="inline" />;
+  if (error) {
+    return (
+      <ErrorAlert
+        message={error}
+        placement="inline"
+        onDismiss={() => setError('')}
+      />
+    );
+  }
 
   const active = loans.filter((l) => l.status === 'ACTIVE');
   const overdue = loans.filter((l) => l.status === 'OVERDUE');

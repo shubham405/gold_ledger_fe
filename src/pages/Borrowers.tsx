@@ -309,8 +309,11 @@ export function Borrowers() {
             </span>
           </nav>
 
-          {formStep === 1 ? (
-            <fieldset disabled={saving} className="form-section">
+          <fieldset
+            disabled={saving}
+            className={`form-section${formStep !== 1 ? ' form-step-panel--hidden' : ''}`}
+            aria-hidden={formStep !== 1}
+          >
               <legend className="form-section__legend">Personal details</legend>
               <label>
                 Full name
@@ -346,8 +349,12 @@ export function Borrowers() {
                 />
               </label>
             </fieldset>
-          ) : (
-            <fieldset disabled={saving} className="form-section">
+
+            <fieldset
+              disabled={saving}
+              className={`form-section${formStep !== 2 ? ' form-step-panel--hidden' : ''}`}
+              aria-hidden={formStep !== 2}
+            >
               <legend className="form-section__legend">Address &amp; ID proof</legend>
               <p className="form-hint">Provide at least one of Aadhaar or PAN (both optional individually).</p>
               <label>
@@ -399,7 +406,6 @@ export function Borrowers() {
                 </label>
               </div>
             </fieldset>
-          )}
 
           <div className={`form-actions${formStep === 2 ? ' form-actions--split' : ''}`}>
             {formStep === 2 && (

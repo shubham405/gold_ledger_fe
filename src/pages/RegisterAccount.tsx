@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { useAuth } from '../context/AuthContext';
 import {
   clearRegisterDraft,
   getRegisterDraft,
+  mergeRegisterDraft,
   type RegisterDraft,
 } from '../lib/registerDraft';
 
 export function RegisterAccount() {
   const draft = getRegisterDraft();
-  if (!draft) {
+  if (!draft?.shopName?.trim() || !draft?.ownerName?.trim()) {
     return <Navigate to="/register" replace />;
   }
   return <RegisterAccountForm draft={draft} />;
@@ -20,9 +21,20 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState(draft.email ?? '');
+  const [password, setPassword] = useState(draft.password ?? '');
+  const [confirmPassword, setConfirmPassword] = useState(draft.confirmPassword ?? '');
+
+  useEffect(() => {
+    mergeRegisterDraft({
+      shopName: draft.shopName,
+      ownerName: draft.ownerName,
+      phone: draft.phone,
+      email,
+      password,
+      confirmPassword,
+    });
+  }, [draft.shopName, draft.ownerName, draft.phone, email, password, confirmPassword]);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 

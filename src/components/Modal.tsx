@@ -55,7 +55,7 @@ export function Modal({
             <ErrorAlert
               message={error}
               placement="inline"
-              onDismiss={onDismissError ?? onClose}
+              onDismiss={onDismissError}
             />
           )}
           {children}

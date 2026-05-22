@@ -79,7 +79,15 @@ export function BorrowerDetail() {
   }
 
   if (loading) return <Loading />;
-  if (!borrower) return <ErrorAlert message={error || 'Customer not found'} placement="inline" />;
+  if (!borrower) {
+    return (
+      <ErrorAlert
+        message={error || 'Customer not found'}
+        placement="inline"
+        onDismiss={() => navigate('/borrowers')}
+      />
+    );
+  }
 
   return (
     <div className="page">
