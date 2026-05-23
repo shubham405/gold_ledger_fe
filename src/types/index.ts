@@ -21,11 +21,17 @@ export interface Borrower {
   fathersName: string;
   address: string;
   mobileNumber: string;
-  aadhaarNumber?: string;
-  panNumber?: string;
+  aadhaarNumber?: string;   // masked (XXXX-XXXX-9012) or null
+  panNumber?: string;       // masked (AB****234F) or null
   loanCount: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface BorrowerIdentity {
+  borrowerId: number;
+  aadhaarNumber?: string;   // full decrypted value
+  panNumber?: string;       // full decrypted value
 }
 
 export interface BorrowerRequest {

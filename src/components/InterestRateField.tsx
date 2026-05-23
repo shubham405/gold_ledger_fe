@@ -1,7 +1,7 @@
 import { NumericInput } from './NumericInput';
 import { SelectInput } from './SelectInput';
 import { useInterestRateBasis } from '../context/InterestRateBasisContext';
-import { rateFieldLabel } from '../lib/interestRate';
+import { rateFieldLabel, sanitizeInterestRateInput } from '../lib/interestRate';
 
 type Props = {
   value: string;
@@ -21,7 +21,7 @@ export function InterestRateField({ value, onChange, required, className }: Prop
           required={required}
           value={value}
           placeholder="e.g. 2.5"
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onChange(sanitizeInterestRateInput(e.target.value))}
         />
         <SelectInput
           value={basis}
@@ -32,7 +32,9 @@ export function InterestRateField({ value, onChange, required, className }: Prop
           ]}
         />
       </div>
-      <span className="form-hint">Up to 4 decimal places. Saved as monthly rate on the server.</span>
+      <span className="form-hint">
+        Decimals allowed (e.g. 2.5). Up to 4 decimal places. Saved as monthly rate on the server.
+      </span>
     </label>
   );
 }
