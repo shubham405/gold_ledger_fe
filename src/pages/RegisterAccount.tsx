@@ -99,7 +99,11 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
 
       {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
 
-      <form className="form auth-form auth-form--compact" onSubmit={handleSubmit}>
+      <form
+        id="register-account-form"
+        className="form auth-form auth-form--compact"
+        onSubmit={handleSubmit}
+      >
         <label>
           Email
           <input
@@ -138,16 +142,21 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </label>
-        <p className="auth-hint">{PASSWORD_RULES_MESSAGE}</p>
-        <div className="auth-form-actions">
-          <Link to="/register" className="btn btn--ghost">
-            Back
-          </Link>
-          <button type="submit" className="btn btn--primary" disabled={saving}>
-            {saving ? 'Creating…' : 'Create account'}
-          </button>
-        </div>
+        <p className="auth-hint auth-hint--compact">{PASSWORD_RULES_MESSAGE}</p>
       </form>
+      <div className="auth-form-actions">
+        <Link to="/register" className="btn btn--ghost">
+          Back
+        </Link>
+        <button
+          type="submit"
+          form="register-account-form"
+          className="btn btn--primary"
+          disabled={saving}
+        >
+          {saving ? 'Creating…' : 'Create account'}
+        </button>
+      </div>
     </div>
   );
 }

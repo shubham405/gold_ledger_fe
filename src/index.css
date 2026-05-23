@@ -438,7 +438,7 @@ a {
   flex-direction: column;
   max-height: calc(100dvh - 2rem);
   height: auto;
-  padding: 1.25rem 1.5rem 1rem;
+  padding: 1rem 1.25rem 0.75rem;
   overflow: hidden;
 }
 
@@ -448,6 +448,21 @@ a {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.auth-page--fixed .auth-brand--compact {
+  margin-bottom: 0.65rem;
+}
+
+.auth-page--fixed .auth-divider {
+  margin: 0 0 0.65rem;
+}
+
+.auth-page--fixed .auth-footer {
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  font-size: 0.78rem;
+  flex-shrink: 0;
 }
 
 .auth-brand {
@@ -511,11 +526,20 @@ a {
   margin: 0 0 0.2rem;
 }
 
+.auth-page--fixed .auth-form-wrap h2 {
+  font-size: 1.2rem;
+}
+
 .auth-subtitle {
   color: var(--text-muted);
   font-size: 0.85rem;
   margin: 0 0 0.85rem;
   line-height: 1.35;
+}
+
+.auth-page--fixed .auth-subtitle {
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
 }
 
 .auth-subtitle strong {
@@ -525,14 +549,24 @@ a {
 
 .auth-form {
   margin-top: 0;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .auth-form--compact {
   gap: 0.65rem;
+}
+
+.auth-page--fixed .auth-form--compact {
+  gap: 0.45rem;
+}
+
+.auth-page--fixed .auth-form--compact .input {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.84rem;
 }
 
 .auth-form--compact label {
@@ -553,8 +587,10 @@ a {
 .auth-form-actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: auto;
+  margin-top: 0.5rem;
   padding-top: 0.5rem;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
 }
 
 .auth-form-actions .btn--primary {
@@ -562,7 +598,19 @@ a {
 }
 
 .auth-form--compact > .btn--block:last-child {
-  margin-top: auto;
+  margin-top: 0.5rem;
+}
+
+.auth-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.auth-hint--compact {
+  font-size: 0.68rem;
+  line-height: 1.3;
 }
 
 .auth-page--fixed .alert {
