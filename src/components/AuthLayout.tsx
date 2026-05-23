@@ -10,8 +10,8 @@ export function AuthLayout() {
 
   return (
     <div className="auth-page auth-page--fixed">
-      <div className="auth-theme-wrap">
-        <ThemeToggle />
+      <div className="auth-page-toolbar">
+        <ThemeToggle className="theme-toggle--auth-page" />
       </div>
       <div className="auth-panel">
         <div className="auth-brand auth-brand--compact">
@@ -23,6 +23,7 @@ export function AuthLayout() {
             <p>Jewelry pledge manager</p>
           </div>
         </div>
+        <div className="auth-divider" aria-hidden />
         <div className="auth-body">
           <Outlet />
         </div>
