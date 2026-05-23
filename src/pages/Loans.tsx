@@ -8,6 +8,7 @@ import { ErrorAlert } from '../components/ErrorAlert';
 import { Loading } from '../components/Loading';
 import { Modal } from '../components/Modal';
 import { DateInput } from '../components/DateInput';
+import { InterestRateField } from '../components/InterestRateField';
 import { NumericInput } from '../components/NumericInput';
 import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
@@ -16,7 +17,6 @@ import type {
   Borrower,
   InterestAccrualBasis,
   InterestMethod,
-  InterestPeriodRequest,
   Loan,
   LoanRequest,
   LoanStatus,
@@ -24,6 +24,8 @@ import type {
 import { getApiErrorMessage } from '../lib/apiError';
 import { rowSerialNumber } from '../lib/rowSerial';
 import { validatePledgeAmounts } from '../lib/amountValidation';
+import { useInterestRateBasis } from '../context/InterestRateBasisContext';
+import { parseRateInput, toMonthlyPercent } from '../lib/interestRate';
 import { formatCurrency, formatDate, todayISO } from '../utils/format';
 
 const STATUS_OPTIONS: { value: '' | LoanStatus; label: string }[] = [
@@ -35,16 +37,24 @@ const STATUS_OPTIONS: { value: '' | LoanStatus; label: string }[] = [
 
 type InterestMode = 'simple' | 'compound' | 'schedule';
 
-const defaultScheduleRow = (): InterestPeriodRequest => ({
+type ScheduleRow = {
+  fromMonth: number;
+  toMonth: number | null;
+  ratePercent: string;
+  interestMethod: InterestMethod;
+};
+
+const defaultScheduleRow = (): ScheduleRow => ({
   fromMonth: 1,
   toMonth: null,
-  monthlyRatePercent: 2,
+  ratePercent: '2',
   interestMethod: 'SIMPLE',
 });
 
 export function Loans() {
   const navigate = useNavigate();
   const { canWrite } = useAuth();
+  const { basis } = useInterestRateBasis();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [statusFilter, setStatusFilter] = useState<'' | LoanStatus>('');
@@ -63,9 +73,7 @@ export function Loans() {
   const [interestMode, setInterestMode] = useState<InterestMode>('simple');
   const [interestAccrualBasis, setInterestAccrualBasis] =
     useState<InterestAccrualBasis>('DAILY_30');
-  const [schedulePeriods, setSchedulePeriods] = useState<InterestPeriodRequest[]>([
-    defaultScheduleRow(),
-  ]);
+  const [schedulePeriods, setSchedulePeriods] = useState<ScheduleRow[]>([defaultScheduleRow()]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -109,7 +117,7 @@ export function Loans() {
       interestPeriods: schedulePeriods.map((p) => ({
         fromMonth: Number(p.fromMonth),
         toMonth: p.toMonth ? Number(p.toMonth) : null,
-        monthlyRatePercent: Number(p.monthlyRatePercent),
+        monthlyRatePercent: toMonthlyPercent(parseRateInput(p.ratePercent)!, basis),
         interestMethod: p.interestMethod,
       })),
     };
@@ -119,13 +127,13 @@ export function Loans() {
     e.preventDefault();
     const rateForValidation =
       interestMode === 'schedule'
-        ? String(schedulePeriods[0]?.monthlyRatePercent ?? '')
+        ? String(schedulePeriods[0]?.ratePercent ?? '')
         : form.monthlyInterestRatePercent;
     const amountError = validatePledgeAmounts(
       form.principalAmount,
       rateForValidation,
       interestMode === 'schedule'
-        ? schedulePeriods.map((p) => String(p.monthlyRatePercent))
+        ? schedulePeriods.map((p) => p.ratePercent)
         : undefined
     );
     if (amountError) {
@@ -140,8 +148,8 @@ export function Loans() {
         principalAmount: Number(form.principalAmount),
         monthlyInterestRatePercent:
           interestMode === 'schedule'
-            ? Number(schedulePeriods[0].monthlyRatePercent)
-            : Number(form.monthlyInterestRatePercent),
+            ? toMonthlyPercent(parseRateInput(schedulePeriods[0].ratePercent)!, basis)
+            : toMonthlyPercent(parseRateInput(form.monthlyInterestRatePercent)!, basis),
         startDate: form.startDate,
         dueDate: form.dueDate,
         interestAccrualBasis,
@@ -306,16 +314,13 @@ export function Loans() {
           </label>
 
           {interestMode !== 'schedule' && (
-            <label>
-              Monthly interest (%)
-              <NumericInput
-                required
-                value={form.monthlyInterestRatePercent}
-                onChange={(e) =>
-                  setForm({ ...form, monthlyInterestRatePercent: e.target.value })
-                }
-              />
-            </label>
+            <InterestRateField
+              required
+              value={form.monthlyInterestRatePercent}
+              onChange={(monthlyInterestRatePercent) =>
+                setForm({ ...form, monthlyInterestRatePercent })
+              }
+            />
           )}
 
           <fieldset className="form-section span-2">
@@ -387,19 +392,16 @@ export function Loans() {
                         }}
                       />
                     </label>
-                    <label>
-                      Rate (%)
-                      <NumericInput
-                        className="input"
-                        required
-                        value={row.monthlyRatePercent}
-                        onChange={(e) => {
-                          const next = [...schedulePeriods];
-                          next[idx] = { ...row, monthlyRatePercent: Number(e.target.value) };
-                          setSchedulePeriods(next);
-                        }}
-                      />
-                    </label>
+                    <InterestRateField
+                      className="interest-schedule-rate"
+                      required
+                      value={row.ratePercent}
+                      onChange={(ratePercent) => {
+                        const next = [...schedulePeriods];
+                        next[idx] = { ...row, ratePercent };
+                        setSchedulePeriods(next);
+                      }}
+                    />
                     <label>
                       Method
                       <SelectInput
@@ -441,7 +443,7 @@ export function Loans() {
                       {
                         fromMonth: nextFrom,
                         toMonth: null,
-                        monthlyRatePercent: last.monthlyRatePercent,
+                        ratePercent: last.ratePercent,
                         interestMethod: 'SIMPLE',
                       },
                     ]);

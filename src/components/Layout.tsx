@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ThemeToggle } from './ThemeToggle';
 
 const nav = [
   { to: '/', label: 'Dashboard', end: true },
@@ -87,6 +88,7 @@ export function Layout() {
           ))}
         </nav>
         <footer className="sidebar-footer">
+          <ThemeToggle />
           <p className="sidebar-user">{user?.ownerName}</p>
           <button type="button" className="btn btn--ghost btn--sm btn--block" onClick={handleLogout}>
             Sign out

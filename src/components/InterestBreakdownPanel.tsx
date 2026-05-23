@@ -1,5 +1,5 @@
 import type { InterestCalculationLine, InterestSummary } from '../types';
-import { formatCurrency, formatDate } from '../utils/format';
+import { formatCurrency, formatDate, formatPercent } from '../utils/format';
 
 export type BreakdownView = 'summary' | 'table';
 
@@ -129,7 +129,9 @@ function SummaryBreakdown({ interest }: { interest: InterestSummary }) {
                   Month {p.fromMonth}
                   {p.toMonth ? `–${p.toMonth}` : '+'}
                 </span>
-                <span className="interest-breakdown__schedule-rate">{p.monthlyRatePercent}%</span>
+                <span className="interest-breakdown__schedule-rate">
+                  {formatPercent(p.monthlyRatePercent)}% p.m.
+                </span>
                 <span className="interest-breakdown__schedule-method">
                   {p.interestMethod === 'SIMPLE' ? 'SI' : 'CI'}
                 </span>
@@ -200,7 +202,7 @@ function SummaryBreakdown({ interest }: { interest: InterestSummary }) {
                             >
                               {line.method === 'SIMPLE' ? 'SI' : 'CI'}
                             </span>{' '}
-                            · {line.ratePercent}%
+                            · {formatPercent(line.ratePercent)}%
                           </span>
                         </div>
                         <p className="interest-breakdown__step-formula">{line.formulaDescription}</p>
@@ -309,7 +311,7 @@ function TableView({ interest }: { interest: InterestSummary }) {
                   {line.method === 'SIMPLE' ? 'SI' : 'CI'}
                 </span>
               </td>
-              <td>{line.ratePercent}%</td>
+              <td>{formatPercent(line.ratePercent)}%</td>
               <td>{formatCurrency(line.principalBase)}</td>
               <td>{formatCurrency(line.interestAmount)}</td>
               <td>{formatCurrency(line.runningAccrued)}</td>

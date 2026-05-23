@@ -154,21 +154,6 @@ export function Borrowers() {
     }
   }
 
-  async function handleDelete(id: number, name: string) {
-    if (
-      !confirm(
-        `Remove customer "${name}"? Active or overdue pledges must be closed first. Closed pledge history will be deleted too.`
-      )
-    )
-      return;
-    try {
-      await borrowersApi.delete(id);
-      load();
-    } catch (err) {
-      setError(getApiErrorMessage(err, 'Delete failed'));
-    }
-  }
-
   return (
     <div className="page">
       <PageHeader
@@ -252,22 +237,13 @@ export function Borrowers() {
                   <td>{b.loanCount}</td>
                   <td className="cell-actions">
                     {canWrite && (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn--ghost btn--sm"
-                          onClick={() => openEdit(b)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn--danger btn--sm"
-                          onClick={() => handleDelete(b.id, b.name)}
-                        >
-                          Delete
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        className="btn btn--ghost btn--sm"
+                        onClick={() => openEdit(b)}
+                      >
+                        Edit
+                      </button>
                     )}
                   </td>
                 </tr>

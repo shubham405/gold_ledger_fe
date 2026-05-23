@@ -10,20 +10,25 @@ export function requirePositiveAmount(value: string, label: string): string | nu
   return null;
 }
 
+import { validateInterestRateInput } from './interestRate';
+
 export function validatePledgeAmounts(
   principal: string,
-  monthlyInterestRatePercent: string,
+  interestRateInput: string,
   scheduleRates?: string[]
 ): string | null {
   const principalError = requirePositiveAmount(principal, 'Principal amount');
   if (principalError) return principalError;
 
-  const rateError = requirePositiveAmount(monthlyInterestRatePercent, 'Interest rate');
+  const rateError = validateInterestRateInput(interestRateInput, 'Interest rate');
   if (rateError) return rateError;
 
   if (scheduleRates) {
     for (let i = 0; i < scheduleRates.length; i++) {
-      const periodError = requirePositiveAmount(scheduleRates[i], `Period ${i + 1} interest rate`);
+      const periodError = validateInterestRateInput(
+        scheduleRates[i],
+        `Period ${i + 1} interest rate`,
+      );
       if (periodError) return periodError;
     }
   }

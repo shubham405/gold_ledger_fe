@@ -6,6 +6,8 @@ import { GuestRoute } from './components/GuestRoute';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RootRedirect } from './components/RootRedirect';
 import { AuthProvider } from './context/AuthContext';
+import { InterestRateBasisProvider } from './context/InterestRateBasisContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { BorrowerDetail } from './pages/BorrowerDetail';
 import { Borrowers } from './pages/Borrowers';
 import { Dashboard } from './pages/Dashboard';
@@ -19,8 +21,10 @@ import { ResetPassword } from './pages/ResetPassword';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <ThemeProvider>
+      <InterestRateBasisProvider>
+        <AuthProvider>
+          <BrowserRouter>
         <ScrollManager />
         <Routes>
           <Route
@@ -53,7 +57,9 @@ export default function App() {
 
           <Route path="*" element={<RootRedirect />} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+          </BrowserRouter>
+        </AuthProvider>
+      </InterestRateBasisProvider>
+    </ThemeProvider>
   );
 }

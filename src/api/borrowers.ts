@@ -31,9 +31,6 @@ export const borrowersApi = {
       body: JSON.stringify(data),
     }),
 
-  delete: (id: number) =>
-    api<void>(`/borrowers/${id}`, { method: 'DELETE' }),
-
   loans: (id: number) => api<Loan[]>(`/borrowers/${id}/loans`),
 
   createLoan: (id: number, data: Omit<import('../types').LoanRequest, 'borrowerId'>) =>
