@@ -4,6 +4,7 @@ interface PledgeGuideModalProps {
   open: boolean;
   onClose: () => void;
   onCreatePledge?: () => void;
+  inactive?: boolean;
 }
 
 const SAMPLE_COLLATERAL = [
@@ -29,7 +30,12 @@ const SAMPLE_COLLATERAL = [
   },
 ];
 
-export function PledgeGuideModal({ open, onClose, onCreatePledge }: PledgeGuideModalProps) {
+export function PledgeGuideModal({
+  open,
+  onClose,
+  onCreatePledge,
+  inactive,
+}: PledgeGuideModalProps) {
   return (
     <Modal title="About pledges" open={open} onClose={onClose} wide>
       <article className="pledge-guide">
@@ -54,9 +60,10 @@ export function PledgeGuideModal({ open, onClose, onCreatePledge }: PledgeGuideM
               <strong>+ New pledge</strong>.
             </li>
             <li>
-              <strong>Enter loan terms</strong> — Choose the customer, loan amount (₹), interest rate,
-              billing period (daily pro-rata or month-to-month), interest type (simple, compound, or
-              custom schedule), start date, and due date.
+              <strong>Enter loan terms</strong> — Choose the customer, loan amount (₹), interest rate
+              (whole or decimal, e.g. 2.5% per month), billing period (daily pro-rata or
+              month-to-month), interest type (simple, compound, or custom schedule), start date, and
+              due date.
             </li>
             <li>
               <strong>Add pledged items</strong> — After saving, open the pledge detail page and add
@@ -82,7 +89,7 @@ export function PledgeGuideModal({ open, onClose, onCreatePledge }: PledgeGuideM
             </li>
             <li>
               <strong>Interest options</strong> — Simple (SI), compound (CI), or phased schedule with
-              different rates and methods per period.
+              different rates and methods per period. Rates can use decimals (e.g. 2.5% per month).
             </li>
             <li>
               <strong>Billing periods</strong> — Daily pro-rata (30-day month) or calendar month
@@ -138,7 +145,7 @@ export function PledgeGuideModal({ open, onClose, onCreatePledge }: PledgeGuideM
               </div>
               <div>
                 <dt>Interest rate</dt>
-                <dd>2% per month (simple)</dd>
+                <dd>2.5% per month (simple)</dd>
               </div>
               <div>
                 <dt>Billing period</dt>
@@ -184,14 +191,14 @@ export function PledgeGuideModal({ open, onClose, onCreatePledge }: PledgeGuideM
 
             <h4>Example payment (after 2 months)</h4>
             <p className="pledge-guide__sample-note">
-              Customer pays ₹8,000 on 15 Mar 2026 — ₹6,000 toward accrued interest and ₹2,000 toward
-              principal. Outstanding principal becomes ₹1,48,000; future interest is calculated on the
-              reduced balance.
+              Customer pays ₹8,000 on 15 Mar 2026 — ₹7,500 toward accrued interest (2.5% for two
+              months) and ₹500 toward principal. Outstanding principal becomes ₹1,49,500; future
+              interest is calculated on the reduced balance.
             </p>
           </div>
         </section>
 
-        {onCreatePledge && (
+        {onCreatePledge ? (
           <div className="pledge-guide__actions">
             <button type="button" className="btn btn--primary" onClick={onCreatePledge}>
               Create your first pledge
@@ -200,7 +207,20 @@ export function PledgeGuideModal({ open, onClose, onCreatePledge }: PledgeGuideM
               Close
             </button>
           </div>
-        )}
+        ) : inactive ? (
+          <div className="pledge-guide__actions">
+            <p className="pledge-guide__activation-note">
+              Your account is pending activation. Once enabled, you can create pledges, add
+              collateral, and record payments from this app.
+            </p>
+            <a href="mailto:support@myledger.in" className="btn btn--primary">
+              Contact support to activate
+            </a>
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              Close
+            </button>
+          </div>
+        ) : null}
       </article>
     </Modal>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { exportApi } from '../api/export';
 import { loansApi } from '../api/loans';
 import { borrowersApi } from '../api/borrowers';
@@ -54,6 +54,7 @@ const defaultScheduleRow = (): ScheduleRow => ({
 
 export function Loans() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { canWrite } = useAuth();
   const { basis } = useInterestRateBasis();
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -92,6 +93,12 @@ export function Loans() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (searchParams.get('guide') !== '1') return;
+    setGuideOpen(true);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   function openCreateModal() {
     setError('');
@@ -180,7 +187,15 @@ export function Loans() {
             >
               + New pledge
             </button>
-          ) : undefined
+          ) : (
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => setGuideOpen(true)}
+            >
+              Learn more about pledges
+            </button>
+          )
         }
       />
 
@@ -252,14 +267,29 @@ export function Loans() {
             </svg>
           </div>
           <h3 className="empty-state__title">No pledges found</h3>
-          <p className="empty-state__body">There are no pledges that match the selected filter.</p>
-          <button
-            type="button"
-            className="btn btn--primary empty-state__cta"
-            onClick={() => setGuideOpen(true)}
-          >
-            Learn more about pledges
-          </button>
+          <p className="empty-state__body">
+            {canWrite
+              ? 'There are no pledges that match the selected filter. Learn how pledges work or create your first one.'
+              : 'Your account is in view-only mode. Explore what pledges can do while you wait for activation.'}
+          </p>
+          <div className="empty-state__actions">
+            <button
+              type="button"
+              className="btn btn--primary empty-state__cta"
+              onClick={() => setGuideOpen(true)}
+            >
+              Learn more about pledges
+            </button>
+            {canWrite && (
+              <button
+                type="button"
+                className="btn btn--ghost empty-state__cta"
+                onClick={openCreateModal}
+              >
+                + New pledge
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="table-wrap card">
@@ -320,6 +350,7 @@ export function Loans() {
       <PledgeGuideModal
         open={guideOpen}
         onClose={() => setGuideOpen(false)}
+        inactive={!canWrite}
         onCreatePledge={
           canWrite
             ? () => {

@@ -274,6 +274,10 @@ a {
   text-align: center;
 }
 
+.upgrade-card__cta + .upgrade-card__cta {
+  margin-top: 0.45rem;
+}
+
 /* Sidebar footer */
 .sidebar-footer {
   color: var(--text-muted);
@@ -656,6 +660,13 @@ a {
   white-space: nowrap;
   flex-shrink: 0;
   text-decoration: none;
+}
+
+.account-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .interest-schedule-block {
@@ -2334,6 +2345,13 @@ label {
   font-weight: 500;
 }
 
+.empty-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
 /* Pledge guide modal */
 .pledge-guide {
   display: flex;
@@ -2485,6 +2503,18 @@ label {
   flex-wrap: wrap;
   gap: 0.75rem;
   padding-top: 0.25rem;
+}
+
+.pledge-guide__activation-note {
+  flex: 1 1 100%;
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  background: rgba(201, 162, 39, 0.08);
+  border-left: 3px solid var(--gold-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 
 .simple-list {

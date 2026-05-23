@@ -155,6 +155,13 @@ export function Layout() {
             <p className="upgrade-card__body">
               Activate your account to create pledges, record payments and more.
             </p>
+            <button
+              type="button"
+              className="btn btn--primary btn--sm btn--block upgrade-card__cta"
+              onClick={() => navigate('/loans?guide=1')}
+            >
+              Learn more about pledges
+            </button>
             <a
               href="mailto:support@myledger.in"
               className="btn btn--ghost btn--sm btn--block upgrade-card__cta"
@@ -211,12 +218,21 @@ export function Layout() {
                 </span>
               </div>
             </div>
-            <a
-              href="mailto:support@myledger.in"
-              className="btn btn--ghost btn--sm account-banner__btn"
-            >
-              Contact Support
-            </a>
+            <div className="account-banner__actions">
+              <button
+                type="button"
+                className="btn btn--primary btn--sm account-banner__btn"
+                onClick={() => navigate('/loans?guide=1')}
+              >
+                Learn more about pledges
+              </button>
+              <a
+                href="mailto:support@myledger.in"
+                className="btn btn--ghost btn--sm account-banner__btn"
+              >
+                Contact Support
+              </a>
+            </div>
           </div>
         )}
         <Outlet />

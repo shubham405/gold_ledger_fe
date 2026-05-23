@@ -69,6 +69,17 @@ export function displayStoredMonthlyRate(
   return `${formatRatePercent(shown)} ${rateBasisShortLabel(basis)}`;
 }
 
+export function sanitizeInterestRateInput(value: string): string {
+  let sanitized = value.replace(/[^\d.]/g, '');
+  const dotIndex = sanitized.indexOf('.');
+  if (dotIndex !== -1) {
+    const whole = sanitized.slice(0, dotIndex);
+    const fraction = sanitized.slice(dotIndex + 1).replace(/\./g, '').slice(0, 4);
+    sanitized = `${whole}.${fraction}`;
+  }
+  return sanitized;
+}
+
 export function validateInterestRateInput(value: string, label = 'Interest rate'): string | null {
   const trimmed = value.trim();
   if (!trimmed) {
