@@ -332,7 +332,7 @@ export function Borrowers() {
               aria-hidden={formStep !== 2}
             >
               <legend className="form-section__legend">Address &amp; ID proof</legend>
-              <p className="form-hint">Provide at least one of Aadhaar or PAN (both optional individually).</p>
+              <p className="form-hint">Both fields are optional. If provided, Aadhaar must be 12 digits and PAN must be 10 characters.</p>
               <label>
                 Address
                 <textarea

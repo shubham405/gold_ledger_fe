@@ -32,9 +32,6 @@ export function validateBorrowerIdentity(
   const aadhaar = normalizeAadhaar(aadhaarRaw);
   const pan = normalizePan(panRaw);
 
-  if (!aadhaar && !pan) {
-    return 'Provide at least one of Aadhaar number or PAN';
-  }
   if (aadhaar && !AADHAAR_PATTERN.test(aadhaar)) {
     return 'Aadhaar must be exactly 12 digits';
   }
