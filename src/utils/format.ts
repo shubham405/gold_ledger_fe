@@ -90,7 +90,7 @@ export function isAfterToday(date: string): boolean {
  * If today is exactly an anniversary, returns the *next* one (i.e. one month later).
  */
 export function nextAnniversaryISO(startDate: string): string {
-  const [sy, sm, sd] = toDateInputValue(startDate).split('-').map(Number);
+  const sd = Number(toDateInputValue(startDate).split('-')[2]);
   const today = new Date();
   const ty = today.getFullYear();
   const tm = today.getMonth() + 1;
