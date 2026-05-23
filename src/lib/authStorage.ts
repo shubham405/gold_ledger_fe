@@ -1,7 +1,7 @@
 import type { AuthUser } from '../types/auth';
 
-const TOKEN_KEY = 'goldledger_token';
-const USER_KEY = 'goldledger_user';
+const TOKEN_KEY = 'myledger_token';
+const USER_KEY = 'myledger_user';
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -43,7 +43,7 @@ export function hasStoredSession(): boolean {
   return Boolean(getToken() && getStoredUser());
 }
 
-const PUBLIC_PATHS = ['/login', '/register', '/register/account'];
+const PUBLIC_PATHS = ['/login', '/register', '/register/account', '/forgot-password', '/reset-password'];
 
 export function isPublicPath(path: string): boolean {
   return PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));

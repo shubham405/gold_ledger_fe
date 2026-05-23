@@ -1,4 +1,4 @@
-# GoldLedger — Jewelry Shop UI
+# MyLedger — Jewelry Shop UI
 
 React frontend for the [**loan-management**](../loan-management) API — gold/silver pledges, customers, payments, and interest.
 
@@ -18,7 +18,19 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173) (or your `VITE_DEV_PORT`).
 
-**Prerequisites:** Node.js 18+, backend and PostgreSQL running.
+**Prerequisites:** Node.js **20.19+** (or 22.12+), backend and PostgreSQL running. Vite 8 does not support 20.18.x. Use [nvm-windows](https://github.com/coreybutler/nvm-windows) or the [Node.js installer](https://nodejs.org/) — see `.nvmrc`.
+
+### Troubleshooting `Cannot find native binding` (rolldown)
+
+On Windows, if `npm run dev` fails with `@rolldown/binding-win32-x64-msvc`, run a clean install:
+
+```bash
+rm -r node_modules
+del package-lock.json
+npm install
+```
+
+Ensure Node is **20.19+** (`node -v`). The project lists the Windows binding under `optionalDependencies` to work around an [npm optional-deps bug](https://github.com/npm/cli/issues/4828).
 
 ## Configuration
 

@@ -7,9 +7,10 @@ import { Loading } from '../components/Loading';
 import { Modal } from '../components/Modal';
 import { DateInput } from '../components/DateInput';
 import { NumericInput } from '../components/NumericInput';
+import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
-import type { Borrower, Loan } from '../types';
+import type { Borrower, InterestAccrualBasis, Loan } from '../types';
 import { getApiErrorMessage } from '../lib/apiError';
 import { rowSerialNumber } from '../lib/rowSerial';
 import { validatePledgeAmounts } from '../lib/amountValidation';
@@ -32,6 +33,8 @@ export function BorrowerDetail() {
     startDate: todayISO(),
     dueDate: '',
   });
+  const [interestAccrualBasis, setInterestAccrualBasis] =
+    useState<InterestAccrualBasis>('DAILY_30');
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(() => {
@@ -68,6 +71,7 @@ export function BorrowerDetail() {
         monthlyInterestRatePercent: Number(pledgeForm.monthlyInterestRatePercent),
         startDate: pledgeForm.startDate,
         dueDate: pledgeForm.dueDate,
+        interestAccrualBasis,
       });
       setPledgeOpen(false);
       navigate(`/loans/${loan.id}`);
@@ -214,6 +218,17 @@ export function BorrowerDetail() {
               onChange={(e) =>
                 setPledgeForm({ ...pledgeForm, monthlyInterestRatePercent: e.target.value })
               }
+            />
+          </label>
+          <label>
+            Billing period
+            <SelectInput
+              value={interestAccrualBasis}
+              onChange={(v) => setInterestAccrualBasis(v as InterestAccrualBasis)}
+              options={[
+                { value: 'DAILY_30', label: 'Daily (30-day month)' },
+                { value: 'CALENDAR_MONTH', label: 'Month-to-month (same date)' },
+              ]}
             />
           </label>
           <label>

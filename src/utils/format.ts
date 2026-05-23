@@ -84,6 +84,40 @@ export function isAfterToday(date: string): boolean {
   return normalized !== '' && normalized > todayISO();
 }
 
+/**
+ * Returns the next anniversary date on or after today for a loan that started on `startDate`.
+ * E.g. startDate=2025-01-15, today=2025-04-10 → "2025-04-15"
+ * If today is exactly an anniversary, returns the *next* one (i.e. one month later).
+ */
+export function nextAnniversaryISO(startDate: string): string {
+  const [sy, sm, sd] = toDateInputValue(startDate).split('-').map(Number);
+  const today = new Date();
+  const ty = today.getFullYear();
+  const tm = today.getMonth() + 1;
+  const td = today.getDate();
+
+  // Try the anniversary in the current month; if already past, advance to next month
+  let y = ty;
+  let m = tm;
+  if (td >= sd) {
+    // Today is on or after the anniversary day this month — use next month's date
+    m += 1;
+    if (m > 12) { m = 1; y += 1; }
+  }
+
+  // Handle months shorter than start day (e.g. start on 31st → Feb → end of Feb)
+  const lastDay = new Date(y, m, 0).getDate();
+  const day = Math.min(sd, lastDay);
+
+  // Sanity: avoid going backwards from start date
+  const result = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  if (result <= startDate) {
+    // If start date is in the future, just use today
+    return todayISO();
+  }
+  return result;
+}
+
 export const ITEM_TYPE_LABELS: Record<string, string> = {
   GOLD: 'Gold',
   SILVER: 'Silver',
@@ -105,4 +139,9 @@ export const LOAN_STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'Active',
   CLOSED: 'Closed',
   OVERDUE: 'Overdue',
+};
+
+export const INTEREST_ACCRUAL_BASIS_LABELS: Record<string, string> = {
+  DAILY_30: 'Daily (30-day month)',
+  CALENDAR_MONTH: 'Month-to-month (same date each month)',
 };

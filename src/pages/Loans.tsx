@@ -14,6 +14,7 @@ import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import type {
   Borrower,
+  InterestAccrualBasis,
   InterestMethod,
   InterestPeriodRequest,
   Loan,
@@ -60,6 +61,8 @@ export function Loans() {
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [interestMode, setInterestMode] = useState<InterestMode>('simple');
+  const [interestAccrualBasis, setInterestAccrualBasis] =
+    useState<InterestAccrualBasis>('DAILY_30');
   const [schedulePeriods, setSchedulePeriods] = useState<InterestPeriodRequest[]>([
     defaultScheduleRow(),
   ]);
@@ -90,6 +93,7 @@ export function Loans() {
       dueDate: '',
     });
     setInterestMode('simple');
+    setInterestAccrualBasis('DAILY_30');
     setSchedulePeriods([defaultScheduleRow()]);
     setModalOpen(true);
   }
@@ -140,6 +144,7 @@ export function Loans() {
             : Number(form.monthlyInterestRatePercent),
         startDate: form.startDate,
         dueDate: form.dueDate,
+        interestAccrualBasis,
         ...buildInterestPayload(),
       });
       setModalOpen(false);
@@ -315,9 +320,24 @@ export function Loans() {
 
           <fieldset className="form-section span-2">
             <legend className="form-section__legend">Interest calculation</legend>
+            <label>
+              Billing period
+              <SelectInput
+                value={interestAccrualBasis}
+                onChange={(v) => setInterestAccrualBasis(v as InterestAccrualBasis)}
+                options={[
+                  { value: 'DAILY_30', label: 'Daily — pro-rata (30-day month)' },
+                  {
+                    value: 'CALENDAR_MONTH',
+                    label: 'Month-to-month — same date each month',
+                  },
+                ]}
+              />
+            </label>
             <p className="form-hint">
-              Accrual-based: interest is calculated on remaining principal, day by day, and
-              adjusts when principal is repaid.
+              {interestAccrualBasis === 'CALENDAR_MONTH'
+                ? 'Each full month from the start date charges one full monthly rate (28/30/31 days treated equally). Partial months are prorated. Principal payments start a new base from that date.'
+                : 'Interest accrues daily on remaining principal (days ÷ 30) and adjusts when principal is repaid.'}
             </p>
             <label>
               Type

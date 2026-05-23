@@ -11,12 +11,14 @@ import { Modal } from '../components/Modal';
 import { InterestBreakdownPanel, type BreakdownView } from '../components/InterestBreakdownPanel';
 import { DateInput } from '../components/DateInput';
 import { NumericInput } from '../components/NumericInput';
+import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
 import { Pagination } from '../components/Pagination';
 import { StatusBadge } from '../components/StatusBadge';
 import type {
   CollateralItem,
   CollateralRequest,
+  InterestAccrualBasis,
   InterestSummary,
   ItemType,
   Loan,
@@ -31,7 +33,9 @@ import { newIdempotencyKey } from '../lib/idempotency';
 import {
   formatCurrency,
   formatDate,
+  INTEREST_ACCRUAL_BASIS_LABELS,
   ITEM_TYPE_LABELS,
+  nextAnniversaryISO,
   isAfterToday,
   todayISO,
   toDateInputValue,
@@ -98,6 +102,9 @@ export function LoanDetail() {
   const [editForm, setEditForm] = useState({
     monthlyInterestRatePercent: '',
     dueDate: '',
+    interestAccrualBasis: 'DAILY_30' as InterestAccrualBasis,
+    effectiveFromDate: '',
+    recalculateFromStart: false,
   });
 
   const [saving, setSaving] = useState(false);
@@ -129,6 +136,9 @@ export function LoanDetail() {
         setEditForm({
           monthlyInterestRatePercent: String(l.monthlyInterestRatePercent),
           dueDate: toDateInputValue(l.dueDate),
+          interestAccrualBasis: l.interestAccrualBasis ?? 'DAILY_30',
+          effectiveFromDate: nextAnniversaryISO(l.startDate),
+          recalculateFromStart: false,
         });
       })
       .catch((e) => setError(getApiErrorMessage(e)))
@@ -349,6 +359,8 @@ export function LoanDetail() {
       await loansApi.update(loanId, {
         monthlyInterestRatePercent: Number(editForm.monthlyInterestRatePercent),
         dueDate: editForm.dueDate,
+        interestAccrualBasis: editForm.interestAccrualBasis,
+        effectiveFromDate: editForm.recalculateFromStart ? null : editForm.effectiveFromDate || null,
       });
       setEditModal(false);
       load();
@@ -376,7 +388,11 @@ export function LoanDetail() {
   }
 
   async function closeLoan() {
-    if (!confirm('Close this pledge? Customer must have settled dues and collected ornaments.')) return;
+    const hasOutstanding = loan && loan.outstandingPrincipal > 0;
+    const msg = hasOutstanding
+      ? `This pledge still has an outstanding principal of ${formatCurrency(loan.outstandingPrincipal)}. Closing now will write off the balance. Are you sure?`
+      : 'Close this pledge? Confirm the customer has settled dues and collected ornaments.';
+    if (!confirm(msg)) return;
     try {
       await loansApi.close(loanId);
       load();
@@ -436,11 +452,9 @@ export function LoanDetail() {
                 <button type="button" className="btn btn--primary" onClick={openPaymentModal}>
                   Record payment
                 </button>
-                {!principalCleared && (
-                  <button type="button" className="btn btn--danger" onClick={closeLoan}>
-                    Close pledge
-                  </button>
-                )}
+                <button type="button" className="btn btn--danger" onClick={closeLoan}>
+                  Close pledge
+                </button>
               </>
             )}
           </div>
@@ -473,6 +487,11 @@ export function LoanDetail() {
             </dd>
             <dt>Monthly rate</dt>
             <dd>{loan.monthlyInterestRatePercent}%</dd>
+            <dt>Billing period</dt>
+            <dd>
+              {INTEREST_ACCRUAL_BASIS_LABELS[loan.interestAccrualBasis ?? 'DAILY_30'] ??
+                loan.interestAccrualBasis}
+            </dd>
             <dt>Start</dt>
             <dd>{formatDate(loan.startDate)}</dd>
             <dt>Due</dt>
@@ -500,6 +519,12 @@ export function LoanDetail() {
                 <dd>{formatDate(interest.asOfDate)}</dd>
                 <dt>Days elapsed</dt>
                 <dd>{interest.daysElapsed}</dd>
+                {(interest.accrualBasis === 'CALENDAR_MONTH' || interest.monthsElapsed > 0) && (
+                  <>
+                    <dt>Completed months</dt>
+                    <dd>{interest.monthsElapsed}</dd>
+                  </>
+                )}
                 <dt>Accrued interest</dt>
                 <dd>{formatCurrency(interest.accruedInterest)}</dd>
                 {(interest.siAccruedInterest ?? 0) > 0 && (interest.ciAccruedInterest ?? 0) > 0 && (
@@ -1023,6 +1048,19 @@ export function LoanDetail() {
             />
           </label>
           <label>
+            Billing period
+            <SelectInput
+              value={editForm.interestAccrualBasis}
+              onChange={(v) =>
+                setEditForm({ ...editForm, interestAccrualBasis: v as InterestAccrualBasis })
+              }
+              options={[
+                { value: 'DAILY_30', label: 'Daily (30-day month)' },
+                { value: 'CALENDAR_MONTH', label: 'Month-to-month (same date)' },
+              ]}
+            />
+          </label>
+          <label>
             Due date
             <DateInput
               required
@@ -1030,6 +1068,35 @@ export function LoanDetail() {
               onChange={(dueDate) => setEditForm({ ...editForm, dueDate })}
             />
           </label>
+
+          <fieldset className="form-section span-2">
+            <legend className="form-section__legend">When do new terms apply?</legend>
+            <label className="label--checkbox">
+              <input
+                type="checkbox"
+                checked={editForm.recalculateFromStart}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, recalculateFromStart: e.target.checked })
+                }
+              />
+              Recalculate interest from pledge start (applies new rate to all past months)
+            </label>
+            {!editForm.recalculateFromStart && (
+              <label className="mt">
+                Effective from
+                <DateInput
+                  required
+                  value={editForm.effectiveFromDate}
+                  min={loan?.startDate ? toDateInputValue(loan.startDate) : undefined}
+                  onChange={(effectiveFromDate) => setEditForm({ ...editForm, effectiveFromDate })}
+                />
+                <span className="form-hint">
+                  Past months keep their original rate. New rate starts from this date onward.
+                </span>
+              </label>
+            )}
+          </fieldset>
+
           <div className="form-actions">
             <button type="button" className="btn btn--ghost" onClick={() => setEditModal(false)}>
               Cancel

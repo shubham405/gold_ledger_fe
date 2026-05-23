@@ -67,7 +67,7 @@ export function Layout() {
             ◆
           </span>
           <div>
-            <h1>GoldLedger</h1>
+            <h1>MyLedger</h1>
             <p className="brand-shop">{user?.shopName ?? 'Jewelry pledge manager'}</p>
           </div>
         </div>
