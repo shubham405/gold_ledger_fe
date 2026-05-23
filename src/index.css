@@ -1374,6 +1374,50 @@ a {
   font-weight: 500;
 }
 
+/* Identity reveal row */
+.identity-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.identity-field__value {
+  font-family: 'DM Sans', monospace;
+  letter-spacing: 0.03em;
+  min-width: 0;
+  word-break: break-all;
+}
+
+.identity-reveal-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.identity-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.identity-reveal-btn--active {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.identity-reveal-btn--active:hover {
+  background: rgba(196, 92, 74, 0.08);
+}
+
+.identity-reveal-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 /* Tables */
 .table-wrap {
   overflow-x: auto;
@@ -1526,6 +1570,38 @@ tr.table-row--clickable:focus-visible {
   outline: none;
   border-color: var(--gold);
   box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2);
+}
+
+/* Password show/hide field */
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-field__input {
+  padding-right: 2.5rem !important;
+}
+
+.password-field__toggle {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.password-field__toggle:hover {
+  color: var(--text);
 }
 
 select.input,

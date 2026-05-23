@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../components/ErrorAlert';
+import { PasswordInput } from '../components/PasswordInput';
 import { getApiErrorMessage } from '../lib/apiError';
 import {
   EMAIL_INVALID_MESSAGE,
@@ -70,9 +71,7 @@ export function Login() {
         </label>
         <label>
           Password
-          <input
-            className="input"
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             required
             minLength={8}

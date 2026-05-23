@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Borrower, BorrowerRequest, Loan, PageResponse } from '../types';
+import type { Borrower, BorrowerIdentity, BorrowerRequest, Loan, PageResponse } from '../types';
 
 const CUSTOMER_PAGE_SIZE = 20;
 
@@ -32,6 +32,9 @@ export const borrowersApi = {
     }),
 
   loans: (id: number) => api<Loan[]>(`/borrowers/${id}/loans`),
+
+  /** Returns the full (unmasked) Aadhaar and PAN for a borrower. */
+  identity: (id: number) => api<BorrowerIdentity>(`/borrowers/${id}/identity`),
 
   createLoan: (id: number, data: Omit<import('../types').LoanRequest, 'borrowerId'>) =>
     api<Loan>(`/borrowers/${id}/loans`, {

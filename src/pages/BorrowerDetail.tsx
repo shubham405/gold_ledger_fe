@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { borrowersApi } from '../api/borrowers';
 import { useAuth } from '../context/AuthContext';
@@ -11,7 +11,7 @@ import { NumericInput } from '../components/NumericInput';
 import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
-import type { Borrower, InterestAccrualBasis, Loan } from '../types';
+import type { Borrower, BorrowerIdentity, InterestAccrualBasis, Loan } from '../types';
 import { getApiErrorMessage } from '../lib/apiError';
 import { rowSerialNumber } from '../lib/rowSerial';
 import { validatePledgeAmounts } from '../lib/amountValidation';
@@ -40,6 +40,58 @@ export function BorrowerDetail() {
   const [interestAccrualBasis, setInterestAccrualBasis] =
     useState<InterestAccrualBasis>('DAILY_30');
   const [saving, setSaving] = useState(false);
+
+  // Identity reveal state
+  const [fullIdentity, setFullIdentity] = useState<BorrowerIdentity | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [revealing, setRevealing] = useState(false);
+  const [revealCountdown, setRevealCountdown] = useState(0);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, []);
+
+  async function toggleReveal() {
+    if (revealed) {
+      setRevealed(false);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
+      setRevealCountdown(0);
+      return;
+    }
+    setRevealing(true);
+    try {
+      const identity = fullIdentity ?? await borrowersApi.identity(borrowerId);
+      setFullIdentity(identity);
+      setRevealed(true);
+      const HIDE_AFTER = 30;
+      setRevealCountdown(HIDE_AFTER);
+      countdownRef.current = setInterval(() => {
+        setRevealCountdown((c) => {
+          if (c <= 1) {
+            clearInterval(countdownRef.current!);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+      hideTimerRef.current = setTimeout(() => {
+        setRevealed(false);
+        setRevealCountdown(0);
+      }, HIDE_AFTER * 1000);
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Could not reveal identity'));
+    } finally {
+      setRevealing(false);
+    }
+  }
+
+  const hasIdentity = !!(borrower?.aadhaarNumber || borrower?.panNumber);
 
   const load = useCallback(() => {
     if (!borrowerId) return;
@@ -134,12 +186,56 @@ export function BorrowerDetail() {
             <dt>Address</dt>
             <dd>{borrower.address}</dd>
             <dt>Aadhaar</dt>
-            <dd>{borrower.aadhaarNumber || '—'}</dd>
+            <dd className="identity-field">
+              <span className="identity-field__value">
+                {revealed && fullIdentity?.aadhaarNumber
+                  ? fullIdentity.aadhaarNumber
+                  : (borrower.aadhaarNumber || '—')}
+              </span>
+            </dd>
             <dt>PAN</dt>
-            <dd>{borrower.panNumber || '—'}</dd>
+            <dd className="identity-field">
+              <span className="identity-field__value">
+                {revealed && fullIdentity?.panNumber
+                  ? fullIdentity.panNumber
+                  : (borrower.panNumber || '—')}
+              </span>
+            </dd>
             <dt>Total pledges</dt>
             <dd>{borrower.loanCount}</dd>
           </dl>
+          {hasIdentity && (
+            <div className="identity-reveal-row">
+              <button
+                type="button"
+                className={`btn btn--ghost btn--sm identity-reveal-btn${revealed ? ' identity-reveal-btn--active' : ''}`}
+                onClick={toggleReveal}
+                disabled={revealing}
+              >
+                {revealing ? (
+                  'Loading…'
+                ) : revealed ? (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M1 1l12 12M5.5 5.6A2 2 0 009.4 9.5M3.3 3.4C2 4.3 1 5.5 1 7c0 0 2 4 6 4a6.3 6.3 0 003.7-1.3M6 2.1A6 6 0 0113 7c-.3.7-.8 1.4-1.3 2" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/>
+                    </svg>
+                    Hide · {revealCountdown}s
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M1 7s2-4 6-4 6 4 6 4-2 4-6 4-6-4-6-4z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/>
+                      <circle cx="7" cy="7" r="1.5" stroke="currentColor" strokeWidth="1.25"/>
+                    </svg>
+                    Reveal identity
+                  </>
+                )}
+              </button>
+              {revealed && (
+                <span className="identity-reveal-hint">Auto-hides in {revealCountdown}s</span>
+              )}
+            </div>
+          )}
         </section>
       </div>
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../components/ErrorAlert';
+import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/AuthContext';
 import {
   EMAIL_INVALID_MESSAGE,
@@ -115,9 +116,7 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
         </label>
         <label>
           Password
-          <input
-            className="input"
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             required
             minLength={PASSWORD_MIN_LENGTH}
@@ -129,9 +128,7 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
         </label>
         <label>
           Confirm password
-          <input
-            className="input"
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             required
             minLength={PASSWORD_MIN_LENGTH}
