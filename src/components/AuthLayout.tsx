@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { ThemeToggle } from './ThemeToggle';
 
 export function AuthLayout() {
   const { pathname } = useLocation();
@@ -9,6 +10,9 @@ export function AuthLayout() {
 
   return (
     <div className="auth-page auth-page--fixed">
+      <div className="auth-theme-wrap">
+        <ThemeToggle />
+      </div>
       <div className="auth-panel">
         <div className="auth-brand auth-brand--compact">
           <span className="brand-icon" aria-hidden>

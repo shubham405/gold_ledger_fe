@@ -141,6 +141,12 @@ export const LOAN_STATUS_LABELS: Record<string, string> = {
   OVERDUE: 'Overdue',
 };
 
+/** Format a stored monthly % for display (trims trailing zeros). */
+export function formatPercent(value: number, maxDecimals = 4): string {
+  const fixed = value.toFixed(maxDecimals);
+  return fixed.replace(/\.?0+$/, '') || '0';
+}
+
 export const INTEREST_ACCRUAL_BASIS_LABELS: Record<string, string> = {
   DAILY_30: 'Daily (30-day month)',
   CALENDAR_MONTH: 'Month-to-month (same date each month)',

@@ -10,6 +10,7 @@ import { Loading } from '../components/Loading';
 import { Modal } from '../components/Modal';
 import { InterestBreakdownPanel, type BreakdownView } from '../components/InterestBreakdownPanel';
 import { DateInput } from '../components/DateInput';
+import { InterestRateField } from '../components/InterestRateField';
 import { NumericInput } from '../components/NumericInput';
 import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
@@ -28,6 +29,14 @@ import type {
 } from '../types';
 import { getApiErrorMessage } from '../lib/apiError';
 import { requirePositiveAmount } from '../lib/amountValidation';
+import { useInterestRateBasis } from '../context/InterestRateBasisContext';
+import {
+  displayStoredMonthlyRate,
+  fromMonthlyPercent,
+  parseRateInput,
+  toMonthlyPercent,
+  validateInterestRateInput,
+} from '../lib/interestRate';
 import { isPaymentConfirmed } from '../lib/paymentUtils';
 import { newIdempotencyKey } from '../lib/idempotency';
 import {
@@ -64,6 +73,7 @@ const emptyCollateral: CollateralRequest = {
 };
 
 export function LoanDetail() {
+  const { basis } = useInterestRateBasis();
   const { canWrite } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -134,7 +144,9 @@ export function LoanDetail() {
         setCollateral(c);
         setInterest(i);
         setEditForm({
-          monthlyInterestRatePercent: String(l.monthlyInterestRatePercent),
+          monthlyInterestRatePercent: String(
+            fromMonthlyPercent(Number(l.monthlyInterestRatePercent), basis),
+          ),
           dueDate: toDateInputValue(l.dueDate),
           interestAccrualBasis: l.interestAccrualBasis ?? 'DAILY_30',
           effectiveFromDate: nextAnniversaryISO(l.startDate),
@@ -143,7 +155,7 @@ export function LoanDetail() {
       })
       .catch((e) => setError(getApiErrorMessage(e)))
       .finally(() => setLoading(false));
-  }, [loanId]);
+  }, [loanId, basis]);
 
   useEffect(() => {
     load();
@@ -346,9 +358,9 @@ export function LoanDetail() {
 
   async function updateLoan(e: React.FormEvent) {
     e.preventDefault();
-    const rateError = requirePositiveAmount(
+    const rateError = validateInterestRateInput(
       editForm.monthlyInterestRatePercent,
-      'Monthly interest rate'
+      'Interest rate',
     );
     if (rateError) {
       setError(rateError);
@@ -357,7 +369,10 @@ export function LoanDetail() {
     setSaving(true);
     try {
       await loansApi.update(loanId, {
-        monthlyInterestRatePercent: Number(editForm.monthlyInterestRatePercent),
+        monthlyInterestRatePercent: toMonthlyPercent(
+          parseRateInput(editForm.monthlyInterestRatePercent)!,
+          basis,
+        ),
         dueDate: editForm.dueDate,
         interestAccrualBasis: editForm.interestAccrualBasis,
         effectiveFromDate: editForm.recalculateFromStart ? null : editForm.effectiveFromDate || null,
@@ -485,8 +500,8 @@ export function LoanDetail() {
                 </span>
               )}
             </dd>
-            <dt>Monthly rate</dt>
-            <dd>{loan.monthlyInterestRatePercent}%</dd>
+            <dt>Interest rate</dt>
+            <dd>{displayStoredMonthlyRate(loan.monthlyInterestRatePercent, basis)}</dd>
             <dt>Billing period</dt>
             <dd>
               {INTEREST_ACCRUAL_BASIS_LABELS[loan.interestAccrualBasis ?? 'DAILY_30'] ??
@@ -1037,16 +1052,13 @@ export function LoanDetail() {
         onDismissError={() => setError('')}
       >
         <form className="form" onSubmit={updateLoan}>
-          <label>
-            Monthly interest (%)
-            <NumericInput
-              required
-              value={editForm.monthlyInterestRatePercent}
-              onChange={(e) =>
-                setEditForm({ ...editForm, monthlyInterestRatePercent: e.target.value })
-              }
-            />
-          </label>
+          <InterestRateField
+            required
+            value={editForm.monthlyInterestRatePercent}
+            onChange={(monthlyInterestRatePercent) =>
+              setEditForm({ ...editForm, monthlyInterestRatePercent })
+            }
+          />
           <label>
             Billing period
             <SelectInput

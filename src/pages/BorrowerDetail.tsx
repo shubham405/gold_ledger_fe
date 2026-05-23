@@ -6,6 +6,7 @@ import { ErrorAlert } from '../components/ErrorAlert';
 import { Loading } from '../components/Loading';
 import { Modal } from '../components/Modal';
 import { DateInput } from '../components/DateInput';
+import { InterestRateField } from '../components/InterestRateField';
 import { NumericInput } from '../components/NumericInput';
 import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
@@ -14,10 +15,13 @@ import type { Borrower, InterestAccrualBasis, Loan } from '../types';
 import { getApiErrorMessage } from '../lib/apiError';
 import { rowSerialNumber } from '../lib/rowSerial';
 import { validatePledgeAmounts } from '../lib/amountValidation';
+import { useInterestRateBasis } from '../context/InterestRateBasisContext';
+import { displayStoredMonthlyRate, parseRateInput, toMonthlyPercent } from '../lib/interestRate';
 import { formatCurrency, formatDate, todayISO } from '../utils/format';
 
 export function BorrowerDetail() {
   const { canWrite } = useAuth();
+  const { basis } = useInterestRateBasis();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const borrowerId = Number(id);
@@ -68,7 +72,10 @@ export function BorrowerDetail() {
     try {
       const loan = await borrowersApi.createLoan(borrowerId, {
         principalAmount: Number(pledgeForm.principalAmount),
-        monthlyInterestRatePercent: Number(pledgeForm.monthlyInterestRatePercent),
+        monthlyInterestRatePercent: toMonthlyPercent(
+          parseRateInput(pledgeForm.monthlyInterestRatePercent)!,
+          basis,
+        ),
         startDate: pledgeForm.startDate,
         dueDate: pledgeForm.dueDate,
         interestAccrualBasis,
@@ -172,7 +179,7 @@ export function BorrowerDetail() {
                     <td className="cell-serial">{rowSerialNumber(index)}</td>
                     <td>{formatCurrency(loan.principalAmount)}</td>
                     <td>{formatCurrency(loan.outstandingPrincipal)}</td>
-                    <td>{loan.monthlyInterestRatePercent}%</td>
+                    <td>{displayStoredMonthlyRate(loan.monthlyInterestRatePercent, basis)}</td>
                     <td>{formatDate(loan.dueDate)}</td>
                     <td>
                       <StatusBadge status={loan.status} />
@@ -210,16 +217,13 @@ export function BorrowerDetail() {
               onChange={(e) => setPledgeForm({ ...pledgeForm, principalAmount: e.target.value })}
             />
           </label>
-          <label>
-            Monthly interest (%)
-            <NumericInput
-              required
-              value={pledgeForm.monthlyInterestRatePercent}
-              onChange={(e) =>
-                setPledgeForm({ ...pledgeForm, monthlyInterestRatePercent: e.target.value })
-              }
-            />
-          </label>
+          <InterestRateField
+            required
+            value={pledgeForm.monthlyInterestRatePercent}
+            onChange={(monthlyInterestRatePercent) =>
+              setPledgeForm({ ...pledgeForm, monthlyInterestRatePercent })
+            }
+          />
           <label>
             Billing period
             <SelectInput
