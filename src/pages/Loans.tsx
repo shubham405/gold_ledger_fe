@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { exportApi } from '../api/export';
 import { loansApi } from '../api/loans';
 import { borrowersApi } from '../api/borrowers';
@@ -12,7 +12,7 @@ import { InterestRateField } from '../components/InterestRateField';
 import { NumericInput } from '../components/NumericInput';
 import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
-import { PledgeGuideModal } from '../components/PledgeGuideModal';
+import { PledgeGuideLink } from '../components/PledgeGuideLink';
 import { StatusBadge } from '../components/StatusBadge';
 import type {
   Borrower,
@@ -54,7 +54,6 @@ const defaultScheduleRow = (): ScheduleRow => ({
 
 export function Loans() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const { canWrite } = useAuth();
   const { basis } = useInterestRateBasis();
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -63,7 +62,6 @@ export function Loans() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [guideOpen, setGuideOpen] = useState(false);
   const [form, setForm] = useState({
     borrowerId: '',
     principalAmount: '',
@@ -93,12 +91,6 @@ export function Loans() {
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    if (searchParams.get('guide') !== '1') return;
-    setGuideOpen(true);
-    setSearchParams({}, { replace: true });
-  }, [searchParams, setSearchParams]);
 
   function openCreateModal() {
     setError('');
@@ -188,13 +180,7 @@ export function Loans() {
               + New pledge
             </button>
           ) : (
-            <button
-              type="button"
-              className="btn btn--primary"
-              onClick={() => setGuideOpen(true)}
-            >
-              Learn more about pledges
-            </button>
+            <PledgeGuideLink />
           )
         }
       />
@@ -273,13 +259,7 @@ export function Loans() {
               : 'Your account is in view-only mode. Explore what pledges can do while you wait for activation.'}
           </p>
           <div className="empty-state__actions">
-            <button
-              type="button"
-              className="btn btn--primary empty-state__cta"
-              onClick={() => setGuideOpen(true)}
-            >
-              Learn more about pledges
-            </button>
+            <PledgeGuideLink className="btn btn--primary empty-state__cta" />
             {canWrite && (
               <button
                 type="button"
@@ -346,20 +326,6 @@ export function Loans() {
           </table>
         </div>
       )}
-
-      <PledgeGuideModal
-        open={guideOpen}
-        onClose={() => setGuideOpen(false)}
-        inactive={!canWrite}
-        onCreatePledge={
-          canWrite
-            ? () => {
-                setGuideOpen(false);
-                openCreateModal();
-              }
-            : undefined
-        }
-      />
 
       <Modal
         title="New pledge"
@@ -476,6 +442,7 @@ export function Loans() {
                     </label>
                     <InterestRateField
                       className="interest-schedule-rate"
+                      compact
                       required
                       value={row.ratePercent}
                       onChange={(ratePercent) => {

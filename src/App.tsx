@@ -12,6 +12,7 @@ import { BorrowerDetail } from './pages/BorrowerDetail';
 import { Borrowers } from './pages/Borrowers';
 import { Dashboard } from './pages/Dashboard';
 import { LoanDetail } from './pages/LoanDetail';
+import { PledgeGuidePage } from './pages/PledgeGuidePage';
 import { Loans } from './pages/Loans';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Login } from './pages/Login';
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="/borrowers" element={<Borrowers />} />
             <Route path="/borrowers/:id" element={<BorrowerDetail />} />
             <Route path="/loans" element={<Loans />} />
+            <Route path="/loans/guide" element={<PledgeGuidePage />} />
             <Route path="/loans/:id" element={<LoanDetail />} />
           </Route>
 

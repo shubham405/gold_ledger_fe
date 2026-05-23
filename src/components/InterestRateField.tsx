@@ -8,9 +8,10 @@ type Props = {
   onChange: (value: string) => void;
   required?: boolean;
   className?: string;
+  compact?: boolean;
 };
 
-export function InterestRateField({ value, onChange, required, className }: Props) {
+export function InterestRateField({ value, onChange, required, className, compact }: Props) {
   const { basis, setBasis } = useInterestRateBasis();
 
   return (
@@ -32,9 +33,11 @@ export function InterestRateField({ value, onChange, required, className }: Prop
           ]}
         />
       </div>
-      <span className="form-hint">
-        Decimals allowed (e.g. 2.5). Up to 4 decimal places. Saved as monthly rate on the server.
-      </span>
+      {!compact && (
+        <span className="form-hint">
+          Decimals allowed (e.g. 2.5). Up to 4 decimal places. Saved as monthly rate on the server.
+        </span>
+      )}
     </label>
   );
 }
