@@ -37,7 +37,7 @@ import {
   toMonthlyPercent,
   validateInterestRateInput,
 } from '../lib/interestRate';
-import { isPaymentConfirmed } from '../lib/paymentUtils';
+import { getUnconfirmedPayments, isPaymentConfirmed } from '../lib/paymentUtils';
 import { newIdempotencyKey } from '../lib/idempotency';
 import {
   formatCurrency,
@@ -273,7 +273,7 @@ export function LoanDetail() {
 
   async function saveEditPayment(e: React.FormEvent) {
     e.preventDefault();
-    if (saving || !editingPayment || loan?.status === 'CLOSED') return;
+    if (saving || !editingPayment) return;
     if (isAfterToday(editPaymentForm.paymentDate)) {
       setError('Payment date cannot be in the future');
       return;
@@ -304,8 +304,7 @@ export function LoanDetail() {
   }
 
   async function handleConfirmPayment(p: Payment) {
-    if (loan?.status === 'CLOSED') return;
-    if (!confirm(`Confirm this payment of ${formatCurrency(p.totalPaid)}? It cannot be edited after confirmation.`)) return;
+    if (!confirm(buildConfirmPaymentMessage(p))) return;
     setError('');
     try {
       await paymentsApi.confirm(loanId, p.id);
@@ -314,6 +313,16 @@ export function LoanDetail() {
     } catch (err) {
       setError(getApiErrorMessage(err, 'Confirm failed'));
     }
+  }
+
+  function buildConfirmPaymentMessage(p: Payment): string {
+    const closesPledge =
+      !isPaymentConfirmed(p) &&
+      (p.outstandingPrincipalAfter <= 0 || loan?.outstandingPrincipal === 0);
+    if (closesPledge) {
+      return `Confirm this payment of ${formatCurrency(p.totalPaid)}? This will finalize the payment and close the pledge.`;
+    }
+    return `Confirm this payment of ${formatCurrency(p.totalPaid)}? It cannot be edited after confirmation.`;
   }
 
   async function recordPayment(e: React.FormEvent) {
@@ -410,7 +419,7 @@ export function LoanDetail() {
     if (!confirm(msg)) return;
     try {
       await loansApi.close(loanId);
-      load();
+      navigate('/loans', { state: { statusFilter: 'CLOSED' as const } });
     } catch (err) {
       setError(getApiErrorMessage(err, 'Could not close pledge'));
     }
@@ -429,6 +438,8 @@ export function LoanDetail() {
 
   const isActive = loan.status === 'ACTIVE' || loan.status === 'OVERDUE';
   const isClosed = loan.status === 'CLOSED';
+  const draftPayments = paymentsPage ? getUnconfirmedPayments(paymentsPage.content) : [];
+  const hasDraftPayments = draftPayments.length > 0;
   const principalCleared = loan.outstandingPrincipal <= 0;
   const principalPaid =
     interest?.totalPrincipalPaid ??
@@ -480,6 +491,27 @@ export function LoanDetail() {
         <ErrorAlert message={error} onDismiss={() => setError('')} />
       )}
 
+      {hasDraftPayments && canWrite && !isClosed && (
+        <section className="card card--warn" role="status">
+          <h2>Draft payment pending confirmation</h2>
+          <p className="detail-note">
+            {principalCleared
+              ? 'The full amount has been recorded as a draft. Please review it below, edit if needed, then confirm to finalize the ledger and close this pledge.'
+              : 'A payment is saved as draft. Please review it below, edit if needed, then confirm to apply it to this pledge.'}
+          </p>
+        </section>
+      )}
+
+      {hasDraftPayments && canWrite && isClosed && (
+        <section className="card card--warn" role="status">
+          <h2>Draft payment needs confirmation</h2>
+          <p className="detail-note">
+            This pledge was closed before the draft payment was confirmed. Confirm the draft payment
+            below to finalize it, or edit it first if the amount is wrong.
+          </p>
+        </section>
+      )}
+
       <div className="detail-grid detail-grid--3">
         <section className="card">
           <h2>Loan summary</h2>
@@ -493,7 +525,13 @@ export function LoanDetail() {
             <dt>Outstanding</dt>
             <dd className="text-accent">
               {formatCurrency(loan.outstandingPrincipal)}
-              {principalCleared && !isClosed && (
+              {principalCleared && !isClosed && hasDraftPayments && (
+                <span className="detail-note detail-note--inline">
+                  {' '}
+                  — confirm the draft payment below to close this pledge
+                </span>
+              )}
+              {principalCleared && !isClosed && !hasDraftPayments && (
                 <span className="detail-note detail-note--inline">
                   {' '}
                   — principal cleared; record final payment or refresh to update status
@@ -714,7 +752,7 @@ export function LoanDetail() {
                   <th>Outstanding after</th>
                   <th>Notes</th>
                   <th>Status</th>
-                  {isActive && canWrite && <th>Actions</th>}
+                  {canWrite && (isActive || hasDraftPayments) && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -739,11 +777,9 @@ export function LoanDetail() {
                         </span>
                       )}
                     </td>
-                    {isActive && canWrite && (
+                    {canWrite && (isActive || hasDraftPayments) && (
                       <td className="cell-actions">
-                        {confirmed ? (
-                          <span className="text-muted">—</span>
-                        ) : (
+                        {!confirmed ? (
                           <>
                             <button
                               type="button"
@@ -760,6 +796,8 @@ export function LoanDetail() {
                               Confirm
                             </button>
                           </>
+                        ) : (
+                          <span className="text-muted">—</span>
                         )}
                       </td>
                     )}
@@ -894,7 +932,8 @@ export function LoanDetail() {
           return (
             <form className="form" onSubmit={recordPayment}>
               <p className="form-hint">
-                When outstanding principal reaches zero, this pledge closes automatically.
+                Payments are saved as draft first. Confirm the payment in the list below to apply it
+                and close the pledge when dues are cleared.
               </p>
               <fieldset disabled={saving} className="form-fieldset">
                 <label>

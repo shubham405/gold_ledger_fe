@@ -19,3 +19,11 @@ export function normalizePaymentPage(page: PageResponse<Payment>): PageResponse<
     content: page.content.map(normalizePayment),
   };
 }
+
+export function getUnconfirmedPayments(payments: Payment[]): Payment[] {
+  return payments.filter((p) => !isPaymentConfirmed(p));
+}
+
+export function hasUnconfirmedPayments(payments: Payment[]): boolean {
+  return payments.some((p) => !isPaymentConfirmed(p));
+}
