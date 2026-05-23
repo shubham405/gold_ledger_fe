@@ -12,6 +12,7 @@ import { InterestRateField } from '../components/InterestRateField';
 import { NumericInput } from '../components/NumericInput';
 import { SelectInput } from '../components/SelectInput';
 import { PageHeader } from '../components/PageHeader';
+import { PledgeGuideModal } from '../components/PledgeGuideModal';
 import { StatusBadge } from '../components/StatusBadge';
 import type {
   Borrower,
@@ -61,6 +62,7 @@ export function Loans() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const [form, setForm] = useState({
     borrowerId: '',
     principalAmount: '',
@@ -251,14 +253,13 @@ export function Loans() {
           </div>
           <h3 className="empty-state__title">No pledges found</h3>
           <p className="empty-state__body">There are no pledges that match the selected filter.</p>
-          <a
-            href="https://myledger.in"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
             className="btn btn--primary empty-state__cta"
+            onClick={() => setGuideOpen(true)}
           >
             Learn more about pledges
-          </a>
+          </button>
         </div>
       ) : (
         <div className="table-wrap card">
@@ -315,6 +316,19 @@ export function Loans() {
           </table>
         </div>
       )}
+
+      <PledgeGuideModal
+        open={guideOpen}
+        onClose={() => setGuideOpen(false)}
+        onCreatePledge={
+          canWrite
+            ? () => {
+                setGuideOpen(false);
+                openCreateModal();
+              }
+            : undefined
+        }
+      />
 
       <Modal
         title="New pledge"
