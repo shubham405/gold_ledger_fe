@@ -4,6 +4,8 @@ export function AuthLayout() {
   const { pathname } = useLocation();
   const isLogin = pathname === '/login';
   const isRegister = pathname.startsWith('/register');
+  const isForgotOrReset =
+    pathname === '/forgot-password' || pathname === '/reset-password';
 
   return (
     <div className="auth-page auth-page--fixed">
@@ -13,7 +15,7 @@ export function AuthLayout() {
             ◆
           </span>
           <div>
-            <h1>GoldLedger</h1>
+            <h1>MyLedger</h1>
             <p>Jewelry pledge manager</p>
           </div>
         </div>
@@ -23,7 +25,7 @@ export function AuthLayout() {
         <p className="auth-footer">
           {isLogin ? (
             <>
-              New to GoldLedger?{' '}
+              New to MyLedger?{' '}
               <Link to="/register" className="link">
                 Register your shop
               </Link>
@@ -31,6 +33,13 @@ export function AuthLayout() {
           ) : isRegister ? (
             <>
               Already registered?{' '}
+              <Link to="/login" className="link">
+                Sign in
+              </Link>
+            </>
+          ) : isForgotOrReset ? (
+            <>
+              Remember your password?{' '}
               <Link to="/login" className="link">
                 Sign in
               </Link>

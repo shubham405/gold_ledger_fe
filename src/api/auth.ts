@@ -24,6 +24,10 @@ async function authFetch<T>(path: string, options: RequestInit = {}): Promise<T>
     throw new Error(message || 'Request failed');
   }
 
+  if (res.status === 204) {
+    return undefined as T;
+  }
+
   return res.json() as Promise<T>;
 }
 
@@ -43,5 +47,17 @@ export const authApi = {
   me: (token: string) =>
     authFetch<AuthResponse>('/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  forgotPassword: (email: string) =>
+    authFetch<void>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, newPassword: string) =>
+    authFetch<void>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
     }),
 };

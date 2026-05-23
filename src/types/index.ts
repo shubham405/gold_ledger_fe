@@ -1,6 +1,7 @@
 export type LoanStatus = 'ACTIVE' | 'CLOSED' | 'OVERDUE';
 
 export type InterestMethod = 'SIMPLE' | 'COMPOUND';
+export type InterestAccrualBasis = 'DAILY_30' | 'CALENDAR_MONTH';
 export type InterestPlanType = 'FLAT' | 'SCHEDULED';
 
 export type ItemType =
@@ -42,6 +43,7 @@ export interface Loan {
   principalAmount: number;
   outstandingPrincipal: number;
   monthlyInterestRatePercent: number;
+  interestAccrualBasis?: InterestAccrualBasis;
   startDate: string;
   dueDate: string;
   status: LoanStatus;
@@ -65,13 +67,20 @@ export interface LoanRequest {
   startDate: string;
   dueDate: string;
   defaultInterestMethod?: InterestMethod;
+  interestAccrualBasis?: InterestAccrualBasis;
   interestPeriods?: InterestPeriodRequest[];
 }
 
 export interface LoanUpdateRequest {
   monthlyInterestRatePercent?: number;
-  dueDate?: string;
   defaultInterestMethod?: InterestMethod;
+  interestAccrualBasis?: InterestAccrualBasis;
+  dueDate?: string;
+  /**
+   * When provided, rate/method changes apply forward-only from this date.
+   * Omit (or set to null) to replace the full schedule from the start.
+   */
+  effectiveFromDate?: string | null;
   interestPeriods?: InterestPeriodRequest[];
 }
 
@@ -119,6 +128,7 @@ export interface InterestSummary {
   totalPayable: number;
   asOfDate: string;
   interestPlanType?: InterestPlanType;
+  accrualBasis?: InterestAccrualBasis;
   defaultMethod?: InterestMethod;
   /** Number of distinct principal-reduction segments in the full history */
   principalSegmentCount?: number;

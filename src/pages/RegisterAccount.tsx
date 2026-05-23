@@ -15,6 +15,12 @@ import {
   mergeRegisterDraft,
   type RegisterDraft,
 } from '../lib/registerDraft';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_PATTERN_SOURCE,
+  PASSWORD_RULES_MESSAGE,
+  validatePassword,
+} from '../lib/passwordValidation';
 
 export function RegisterAccount() {
   const draft = getRegisterDraft();
@@ -50,6 +56,11 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
     const emailError = validateEmail(email);
     if (emailError) {
       setError(emailError);
+      return;
+    }
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
     if (password !== confirmPassword) {
@@ -109,7 +120,9 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
             type="password"
             autoComplete="new-password"
             required
-            minLength={8}
+            minLength={PASSWORD_MIN_LENGTH}
+            pattern={PASSWORD_PATTERN_SOURCE}
+            title={PASSWORD_RULES_MESSAGE}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -121,11 +134,14 @@ function RegisterAccountForm({ draft }: { draft: RegisterDraft }) {
             type="password"
             autoComplete="new-password"
             required
-            minLength={8}
+            minLength={PASSWORD_MIN_LENGTH}
+            pattern={PASSWORD_PATTERN_SOURCE}
+            title={PASSWORD_RULES_MESSAGE}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </label>
+        <p className="auth-hint">{PASSWORD_RULES_MESSAGE}</p>
         <div className="auth-form-actions">
           <Link to="/register" className="btn btn--ghost">
             Back

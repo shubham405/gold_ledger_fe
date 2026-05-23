@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ErrorAlert } from '../components/ErrorAlert';
-import { getApiErrorMessage } from '../lib/apiError';
+import { authApi } from '../api/auth';
 import {
   EMAIL_INVALID_MESSAGE,
   EMAIL_MAX_LENGTH,
@@ -9,20 +9,11 @@ import {
   normalizeEmail,
   validateEmail,
 } from '../lib/emailValidation';
-import { useAuth } from '../context/AuthContext';
-import { isPublicPath } from '../lib/authStorage';
 
-export function Login() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const requested = (location.state as { from?: string } | null)?.from;
-  const from =
-    requested && requested.startsWith('/') && !isPublicPath(requested) ? requested : '/';
-
+export function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,20 +26,41 @@ export function Login() {
     setSaving(true);
     setError('');
     try {
-      await login({ email: normalizeEmail(email), password });
-      navigate(from, { replace: true });
+      await authApi.forgotPassword(normalizeEmail(email));
+      setSubmitted(true);
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Sign in failed'));
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setSaving(false);
     }
   }
 
+  if (submitted) {
+    return (
+      <div className="auth-form-wrap">
+        <div className="auth-step-header">
+          <h2>Check your email</h2>
+          <p className="auth-subtitle">
+            If an account exists for <strong>{normalizeEmail(email)}</strong>, a password reset link
+            has been sent. Check your inbox and follow the link to reset your password.
+          </p>
+        </div>
+        <p className="auth-footer-inline">
+          <Link to="/login" className="link">
+            Back to sign in
+          </Link>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="auth-form-wrap">
       <div className="auth-step-header">
-        <h2>Sign in</h2>
-        <p className="auth-subtitle">Access your shop’s pledges and customers</p>
+        <h2>Forgot password?</h2>
+        <p className="auth-subtitle">
+          Enter your account email and we'll send you a link to reset your password.
+        </p>
       </div>
 
       {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
@@ -68,27 +80,16 @@ export function Login() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </label>
-        <label>
-          Password
-          <input
-            className="input"
-            type="password"
-            autoComplete="current-password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-        <div className="auth-forgot-row">
-          <Link to="/forgot-password" className="link auth-forgot-link">
-            Forgot password?
-          </Link>
-        </div>
         <button type="submit" className="btn btn--primary btn--block" disabled={saving}>
-          {saving ? 'Signing in…' : 'Sign in'}
+          {saving ? 'Sending…' : 'Send reset link'}
         </button>
       </form>
+
+      <p className="auth-footer-inline">
+        <Link to="/login" className="link">
+          Back to sign in
+        </Link>
+      </p>
     </div>
   );
 }

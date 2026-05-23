@@ -7,7 +7,7 @@ export interface RegisterDraft {
   confirmPassword?: string;
 }
 
-const KEY = 'goldledger_register_draft';
+const KEY = 'myledger_register_draft';
 
 export function saveRegisterDraft(draft: RegisterDraft): void {
   sessionStorage.setItem(KEY, JSON.stringify(draft));

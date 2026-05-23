@@ -8,7 +8,7 @@ function normalizeApiBaseUrl(url: string): string {
   const trimmed = url.replace(/\/+$/, '');
   if (!trimmed.endsWith('/api/v1')) {
     console.warn(
-      '[GoldLedger] VITE_API_URL should end with /api/v1. Got:',
+      '[MyLedger] VITE_API_URL should end with /api/v1. Got:',
       url,
       '→ using',
       `${trimmed}/api/v1`,

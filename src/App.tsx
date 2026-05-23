@@ -11,9 +11,11 @@ import { Borrowers } from './pages/Borrowers';
 import { Dashboard } from './pages/Dashboard';
 import { LoanDetail } from './pages/LoanDetail';
 import { Loans } from './pages/Loans';
+import { ForgotPassword } from './pages/ForgotPassword';
 import { Login } from './pages/Login';
 import { RegisterAccount } from './pages/RegisterAccount';
 import { RegisterShop } from './pages/RegisterShop';
+import { ResetPassword } from './pages/ResetPassword';
 
 export default function App() {
   return (
@@ -31,6 +33,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegisterShop />} />
             <Route path="/register/account" element={<RegisterAccount />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
 
           <Route
