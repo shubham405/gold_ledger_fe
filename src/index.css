@@ -11,6 +11,7 @@
   --gold: #c9a227;
   --gold-light: #e8c84a;
   --gold-dim: #8a7020;
+  --gold-emphasis: var(--gold-light);
   --danger: #c45c4a;
   --danger-soft: #f0a89a;
   --warn: #d4a03a;
@@ -18,28 +19,41 @@
   --on-primary: #1a1508;
   --overlay: rgba(0, 0, 0, 0.55);
   --silver-tag: #c8d0d8;
+  --shadow-card: none;
+  --shadow-card-hover: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --surface-subtle: rgba(255, 255, 255, 0.03);
+  --nav-active-bg: rgba(201, 162, 39, 0.15);
+  --banner-bg: rgba(212, 168, 75, 0.12);
+  --banner-border: rgba(212, 168, 75, 0.35);
   --radius: 10px;
   --sidebar-w: 240px;
   color-scheme: dark;
 }
 
 [data-theme='light'] {
-  --bg: #f6f3eb;
-  --bg-elevated: #ffffff;
+  --bg: #e8e4da;
+  --bg-elevated: #fafaf8;
   --bg-card: #ffffff;
-  --border: #d4cbb8;
-  --text: #1c1812;
-  --text-muted: #5c5345;
-  --gold: #a8841a;
-  --gold-light: #c9a227;
-  --gold-dim: #7a6518;
+  --border: #c4b9a8;
+  --text: #1a1610;
+  --text-muted: #5a5244;
+  --gold: #8f7114;
+  --gold-light: #a8841a;
+  --gold-dim: #6d5710;
+  --gold-emphasis: #4a3a0c;
   --danger: #b84a3a;
   --danger-soft: #9a3d30;
-  --warn: #9a6f18;
-  --success: #3d7a52;
-  --on-primary: #1a1508;
+  --warn: #8a6210;
+  --success: #2f6b44;
+  --on-primary: #fffef9;
   --overlay: rgba(28, 24, 18, 0.35);
   --silver-tag: #5c6570;
+  --shadow-card: 0 1px 2px rgba(28, 24, 18, 0.05), 0 2px 8px rgba(28, 24, 18, 0.05);
+  --shadow-card-hover: 0 6px 20px rgba(28, 24, 18, 0.1);
+  --surface-subtle: rgba(28, 24, 18, 0.04);
+  --nav-active-bg: #e2dac8;
+  --banner-bg: #fff8e8;
+  --banner-border: #d9c48a;
   color-scheme: light;
 }
 
@@ -107,7 +121,7 @@ a {
 
 .brand h1 {
   font-size: 1.35rem;
-  color: var(--gold-light);
+  color: var(--gold-emphasis);
   letter-spacing: 0.02em;
 }
 
@@ -141,8 +155,9 @@ a {
 }
 
 .nav-link--active {
-  background: rgba(201, 162, 39, 0.15);
-  color: var(--gold-light);
+  background: var(--nav-active-bg);
+  color: var(--gold-emphasis);
+  font-weight: 600;
 }
 
 .brand-shop {
@@ -189,13 +204,28 @@ a {
   box-sizing: border-box;
 }
 
+.auth-page-toolbar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+}
+
 .auth-panel {
   width: 100%;
   max-width: 420px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 2rem 1.75rem;
+  box-shadow: var(--shadow-card);
+}
+
+.auth-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 0 1.25rem;
+  flex-shrink: 0;
 }
 
 .auth-page--fixed .auth-panel {
@@ -224,12 +254,12 @@ a {
 }
 
 .auth-brand--compact {
-  margin-bottom: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 .auth-brand h1 {
   font-size: 1.5rem;
-  color: var(--gold-light);
+  color: var(--gold-emphasis);
 }
 
 .auth-brand--compact h1 {
@@ -269,7 +299,10 @@ a {
 }
 
 .auth-form-wrap h2 {
-  font-size: 1.2rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: var(--text);
   margin: 0 0 0.2rem;
 }
 
@@ -336,10 +369,22 @@ a {
 
 .auth-footer {
   margin: 0.75rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
   text-align: center;
   font-size: 0.8rem;
   color: var(--text-muted);
   flex-shrink: 0;
+}
+
+.auth-forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: -0.15rem 0 0.15rem;
+}
+
+.auth-forgot-link {
+  font-size: 0.8rem;
 }
 
 .main {
@@ -350,8 +395,8 @@ a {
 }
 
 .account-banner {
-  background: rgba(212, 168, 75, 0.12);
-  border: 1px solid rgba(212, 168, 75, 0.35);
+  background: var(--banner-bg);
+  border: 1px solid var(--banner-border);
   border-radius: var(--radius);
   padding: 0.85rem 1rem;
   margin-bottom: 1.25rem;
@@ -831,12 +876,13 @@ a {
   min-height: 5.5rem;
   min-width: 0;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 
 .stat-card:hover {
   border-color: var(--gold-dim);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-card-hover);
   transform: translateY(-1px);
 }
 
@@ -985,7 +1031,7 @@ a {
 .stat-card--active .stat-value,
 .stat-card--principal .stat-value,
 .stat-card--collateral .stat-value {
-  color: var(--gold-light);
+  color: var(--gold-emphasis);
 }
 
 @media (max-width: 1200px) {
@@ -1024,6 +1070,7 @@ a {
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-card);
 }
 
 .card--accent {
@@ -1045,7 +1092,7 @@ a {
 .card-header h2,
 .card h2 {
   font-size: 1.25rem;
-  color: var(--gold-light);
+  color: var(--gold-emphasis);
 }
 
 .detail-grid {
@@ -1111,7 +1158,7 @@ th {
 }
 
 tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface-subtle);
 }
 
 tr.table-row--clickable {
@@ -2250,6 +2297,129 @@ label {
   }
 }
 
+/* Light theme polish */
+[data-theme='light'] .sidebar {
+  box-shadow: 1px 0 0 var(--border), 4px 0 16px rgba(28, 24, 18, 0.05);
+}
+
+[data-theme='light'] a {
+  color: var(--gold-dim);
+}
+
+[data-theme='light'] a:hover {
+  color: var(--gold-emphasis);
+}
+
+[data-theme='light'] .input,
+[data-theme='light'] select.input {
+  background: #f5f2eb;
+}
+
+[data-theme='light'] .stat-icon {
+  background: rgba(143, 113, 20, 0.1);
+  color: var(--gold-dim);
+}
+
+[data-theme='light'] .stat-icon--active,
+[data-theme='light'] .stat-icon--principal {
+  background: rgba(143, 113, 20, 0.14);
+  color: var(--gold-emphasis);
+}
+
+[data-theme='light'] .stat-icon--collateral {
+  background: rgba(109, 87, 16, 0.12);
+  color: var(--gold-dim);
+}
+
+[data-theme='light'] .interest-breakdown__stat {
+  background: var(--surface-subtle);
+}
+
+[data-theme='light'] .interest-breakdown__step {
+  background: var(--surface-subtle);
+}
+
+[data-theme='light'] .interest-breakdown__schedule-rate,
+[data-theme='light'] .interest-breakdown__step-formula {
+  color: var(--gold-emphasis);
+}
+
+[data-theme='light'] .auth-page {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -5%, rgba(201, 162, 39, 0.14) 0%, transparent 55%),
+    linear-gradient(168deg, #f3efe6 0%, #e6e0d4 48%, #ddd7cb 100%);
+}
+
+[data-theme='light'] .auth-page-toolbar .theme-toggle {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #c9bfb0;
+  box-shadow: 0 2px 10px rgba(28, 24, 18, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+[data-theme='light'] .auth-panel {
+  background: #ffffff;
+  border-color: #b8ad9c;
+  border-top: 3px solid var(--gold);
+  box-shadow:
+    0 2px 4px rgba(28, 24, 18, 0.04),
+    0 16px 48px rgba(28, 24, 18, 0.12);
+}
+
+[data-theme='light'] .auth-panel .input {
+  background: #ffffff;
+  border-color: #cfc6b6;
+}
+
+[data-theme='light'] .auth-panel .input:hover {
+  border-color: #b8ad9c;
+}
+
+[data-theme='light'] .auth-panel .input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(143, 113, 20, 0.14);
+}
+
+[data-theme='light'] .auth-form-wrap h2 {
+  color: #1a1610;
+}
+
+[data-theme='light'] .auth-subtitle strong {
+  color: var(--gold-emphasis);
+}
+
+[data-theme='light'] .auth-panel .link,
+[data-theme='light'] .auth-footer .link {
+  color: var(--gold-dim);
+  font-weight: 500;
+}
+
+[data-theme='light'] .auth-panel .link:hover,
+[data-theme='light'] .auth-footer .link:hover {
+  color: var(--gold-emphasis);
+}
+
+[data-theme='light'] .auth-page .btn--primary {
+  background: linear-gradient(180deg, #a8841a 0%, #8f7114 100%);
+  border-color: #7a6210;
+  box-shadow: 0 2px 6px rgba(74, 58, 12, 0.2);
+}
+
+[data-theme='light'] .auth-page .btn--primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #b8921f 0%, #9a7716 100%);
+  border-color: #8f7114;
+  box-shadow: 0 4px 12px rgba(74, 58, 12, 0.25);
+}
+
+[data-theme='light'] .btn--primary:hover:not(:disabled) {
+  background: #a8841a;
+  border-color: #a8841a;
+}
+
+[data-theme='light'] .account-banner strong {
+  color: var(--gold-emphasis);
+}
+
 /* Theme toggle */
 .theme-toggle {
   display: inline-flex;
@@ -2276,17 +2446,14 @@ label {
   line-height: 1;
 }
 
+.theme-toggle--auth-page {
+  padding: 0.45rem 0.75rem;
+}
+
 .sidebar-footer .theme-toggle {
   width: 100%;
   justify-content: center;
   margin-bottom: 0.5rem;
-}
-
-.auth-theme-wrap {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 2;
 }
 
 /* Interest rate: value + monthly/yearly */
