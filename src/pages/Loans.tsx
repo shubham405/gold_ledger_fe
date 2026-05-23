@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { exportApi } from '../api/export';
 import { loansApi } from '../api/loans';
 import { borrowersApi } from '../api/borrowers';
@@ -54,6 +54,7 @@ const defaultScheduleRow = (): ScheduleRow => ({
 
 export function Loans() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { canWrite } = useAuth();
   const { basis } = useInterestRateBasis();
   const [loans, setLoans] = useState<Loan[]>([]);
@@ -91,6 +92,13 @@ export function Loans() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    const nextFilter = (location.state as { statusFilter?: '' | LoanStatus } | null)?.statusFilter;
+    if (!nextFilter) return;
+    setStatusFilter(nextFilter);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   function openCreateModal() {
     setError('');

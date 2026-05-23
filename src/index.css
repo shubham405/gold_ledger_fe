@@ -570,6 +570,12 @@ a {
   padding: 0.5rem 0.75rem;
   font-size: 0.8rem;
   flex-shrink: 0;
+  justify-content: center;
+  text-align: center;
+}
+
+.auth-page--fixed .alert > span {
+  text-align: center;
 }
 
 .auth-footer {
@@ -2620,30 +2626,52 @@ label {
   pointer-events: none;
 }
 
+@media (min-width: 769px) {
+  .alert-toast-layer {
+    left: var(--sidebar-w);
+  }
+}
+
 .alert-toast-layer .alert--toast {
   pointer-events: auto;
+  position: relative;
+  justify-content: center;
   width: auto;
   max-width: min(22rem, calc(100vw - 2rem));
   margin: 0;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
   font-size: 0.8rem;
   line-height: 1.35;
   gap: 0.5rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  text-align: center;
 }
 
 .alert-toast-layer .alert--toast > span {
   flex: 1;
+  text-align: center;
 }
 
-@media (min-width: 769px) {
-  .alert-toast-layer .alert--toast {
-    transform: translateX(calc(var(--sidebar-w) / 2));
-  }
+.alert-toast-layer .alert--toast .btn-icon {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
 }
 
 .alert--inline {
   margin-bottom: 1rem;
+  justify-content: center;
+  text-align: center;
+}
+
+.alert--inline > span {
+  flex: 1;
+  text-align: center;
+}
+
+.alert--inline .btn-icon {
+  flex-shrink: 0;
 }
 
 .date-input {
@@ -2873,7 +2901,7 @@ label {
   }
 
   .alert-toast-layer .alert--toast {
-    transform: none;
+    max-width: min(22rem, calc(100vw - 2rem));
   }
 
   .form--grid {
