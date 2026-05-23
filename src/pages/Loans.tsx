@@ -168,7 +168,7 @@ export function Loans() {
     <div className="page">
       <PageHeader
         title="Pledges"
-        subtitle="Click a row or View to open pledge details"
+        subtitle="Manage and track all your pledges in one place."
         action={
           canWrite ? (
             <button
@@ -222,7 +222,44 @@ export function Loans() {
       {loading ? (
         <Loading />
       ) : loans.length === 0 ? (
-        <p className="empty">No pledges match this filter.</p>
+        <div className="empty-state">
+          <div className="empty-state__illustration" aria-hidden="true">
+            <svg viewBox="0 0 160 140" width="140" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Soft glow behind document */}
+              <ellipse cx="66" cy="72" rx="42" ry="38" fill="var(--gold)" opacity="0.07" />
+              {/* Document body */}
+              <rect x="36" y="28" width="58" height="72" rx="6" fill="var(--bg-elevated)" stroke="var(--border)" strokeWidth="1.5" />
+              {/* Document lines */}
+              <line x1="48" y1="55" x2="82" y2="55" stroke="var(--border)" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="48" y1="65" x2="82" y2="65" stroke="var(--border)" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="48" y1="75" x2="68" y2="75" stroke="var(--border)" strokeWidth="2.5" strokeLinecap="round" />
+              {/* Bookmark ribbon */}
+              <path d="M72 28 L72 52 L80 47 L88 52 L88 28 Z" fill="var(--gold)" opacity="0.75" />
+              {/* Decorative circles */}
+              <circle cx="20" cy="60" r="5" fill="var(--gold)" opacity="0.12" />
+              <circle cx="128" cy="40" r="7" fill="var(--gold)" opacity="0.09" />
+              <circle cx="22" cy="90" r="3" fill="var(--gold)" opacity="0.1" />
+              {/* Plant pot */}
+              <path d="M112 98 L128 98 L125 112 L115 112 Z" fill="var(--text-muted)" opacity="0.35" />
+              <line x1="109" y1="98" x2="131" y2="98" stroke="var(--text-muted)" strokeOpacity="0.45" strokeWidth="2" strokeLinecap="round" />
+              {/* Plant stem */}
+              <line x1="120" y1="97" x2="120" y2="80" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" opacity="0.55" />
+              {/* Leaves */}
+              <path d="M120 84 Q129 75 133 81 Q127 87 120 84Z" fill="var(--success)" opacity="0.45" />
+              <path d="M120 90 Q111 81 107 87 Q113 93 120 90Z" fill="var(--success)" opacity="0.45" />
+            </svg>
+          </div>
+          <h3 className="empty-state__title">No pledges found</h3>
+          <p className="empty-state__body">There are no pledges that match the selected filter.</p>
+          <a
+            href="https://myledger.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn--primary empty-state__cta"
+          >
+            Learn more about pledges
+          </a>
+        </div>
       ) : (
         <div className="table-wrap card">
           <table>
