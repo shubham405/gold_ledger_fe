@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { PledgeGuideLink } from './PledgeGuideLink';
 
 function getInitials(name: string | undefined): string {
   if (!name) return '?';
@@ -155,13 +156,7 @@ export function Layout() {
             <p className="upgrade-card__body">
               Activate your account to create pledges, record payments and more.
             </p>
-            <button
-              type="button"
-              className="btn btn--primary btn--sm btn--block upgrade-card__cta"
-              onClick={() => navigate('/loans?guide=1')}
-            >
-              Learn more about pledges
-            </button>
+            <PledgeGuideLink className="btn btn--primary btn--sm btn--block upgrade-card__cta" />
             <a
               href="mailto:support@myledger.in"
               className="btn btn--ghost btn--sm btn--block upgrade-card__cta"
@@ -219,13 +214,7 @@ export function Layout() {
               </div>
             </div>
             <div className="account-banner__actions">
-              <button
-                type="button"
-                className="btn btn--primary btn--sm account-banner__btn"
-                onClick={() => navigate('/loans?guide=1')}
-              >
-                Learn more about pledges
-              </button>
+              <PledgeGuideLink className="btn btn--primary btn--sm account-banner__btn" />
               <a
                 href="mailto:support@myledger.in"
                 className="btn btn--ghost btn--sm account-banner__btn"
